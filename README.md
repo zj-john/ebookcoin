@@ -1,8 +1,10 @@
 # Ebookcoin
 
-书链：加密货币驱动的电子书写作和版权保护应用
+书链：加密货币驱动的电子书写作和版权保护应用。源码解析与开发指南：[《Nodejs开发加密货币》][]
 
 Ebookcoin is a decentralized application for eBook-writing and copyright-protection powered by the next-generation Crypto Currency. For more information please refer to our website: http://ebookcoin.com/.
+
+官方开发交流群：185046161
 
 ## Installation
 
@@ -105,3 +107,6 @@ The MIT License (MIT)
 
 Copyright (c) 2016 Ebookcoin  
 Copyright (c) 2014-2015 Crypti  
+
+
+[《Nodejs开发加密货币》]: http://book.btcnodejs.com
