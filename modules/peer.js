@@ -117,7 +117,7 @@ private.updatePeerList = function (cb) {
 						return setImmediate(cb);
 					}
 
-					if (ip.toLong("127.0.0.1") == peer.ip || peer.port == 0 || peer.port > 65535) {
+					if (ip.toLong("127.0.0.1") === peer.ip || peer.port === 0 || peer.port > 65535) {
 						return setImmediate(cb);
 					}
 
@@ -136,7 +136,7 @@ private.count = function (cb) {
 		}
 		var res = rows.length && rows[0].count;
 		cb(null, res);
-	})
+	});
 };
 
 private.banManager = function (cb) {
@@ -204,11 +204,11 @@ private.getByFilter = function (filter, cb) {
 		if (limit > 100) {
 			return cb("Invalid limit. Maximum is 100");
 		}
-		params['limit'] = limit;
+		params.limit = limit;
 	}
 
 	if (offset !== null) {
-		params['offset'] = offset;
+		params.offset = offset;
 	}
 
 	library.dbLite.query("select ip, port, state, os, sharePort, version from peers" +

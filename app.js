@@ -89,7 +89,7 @@ var config = {
 		"crypto": "./modules/crypto.js",
 		"sql": "./modules/sql.js"
 	}
-}
+};
 
 var logger = new Logger({echo: appConfig.consoleLogLevel, errorLevel: appConfig.fileLogLevel});
 
@@ -110,7 +110,7 @@ d.run(function () {
 					charset: 'alphanumeric'
 				});
 				fs.writeFile("./config.json", JSON.stringify(appConfig, null, 4), "utf8", function (err) {
-					cb(err, appConfig)
+					cb(err, appConfig);
 				});
 			} else {
 				cb(null, appConfig);
@@ -147,7 +147,7 @@ d.run(function () {
 			});
 
 			z_schema.registerFormat('publicKey', function (str) {
-				if (str.length == 0) {
+				if (str.length === 0) {
 					return true;
 				}
 
@@ -174,7 +174,7 @@ d.run(function () {
 			});
 
 			z_schema.registerFormat('signature', function (str) {
-				if (str.length == 0) {
+				if (str.length === 0) {
 					return true;
 				}
 
@@ -184,7 +184,7 @@ d.run(function () {
 				} catch (e) {
 					return false;
 				}
-			})
+			});
 
 			z_schema.registerFormat('listQuery', function (obj) {
 				obj.limit = 100;
@@ -209,7 +209,7 @@ d.run(function () {
 
 			});
 
-			cb(null, new z_schema())
+			cb(null, new z_schema());
 		},
 
 		network: ['config', function (cb, scope) {

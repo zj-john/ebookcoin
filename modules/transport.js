@@ -47,7 +47,7 @@ private.attachApi = function () {
 			return res.status(500).send({success: false, error: "Wrong header data"});
 		}
 
-		req.headers['port'] = parseInt(req.headers['port']);
+		req.headers.port = parseInt(req.headers.port);
 		req.headers['share-port'] = parseInt(req.headers['share-port']);
 
 		req.sanitize(req.headers, {
@@ -103,7 +103,7 @@ private.attachApi = function () {
 		res.set(private.headers);
 		modules.peer.list({limit: 100}, function (err, peers) {
 			return res.status(200).json({peers: !err ? peers : []});
-		})
+		});
 	});
 
 	router.get("/blocks/common", function (req, res, next) {
@@ -152,11 +152,11 @@ private.attachApi = function () {
 				});
 
 				var peerIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-				var peerStr = peerIp ? peerIp + ":" + (isNaN(parseInt(req.headers['port'])) ? 'unkwnown' : parseInt(req.headers['port'])) : 'unknown';
+				var peerStr = peerIp ? peerIp + ":" + (isNaN(parseInt(req.headers.port)) ? 'unkwnown' : parseInt(req.headers.port)) : 'unknown';
 				library.logger.log('Invalid common block request, ban 60 min', peerStr);
 
 				if (report) {
-					modules.peer.state(ip.toLong(peerIp), RequestSanitizer.int(req.headers['port']), 0, 3600);
+					modules.peer.state(ip.toLong(peerIp), RequestSanitizer.int(req.headers.port), 0, 3600);
 				}
 
 				return res.json({success: false, error: "Invalid block id sequence"});
@@ -224,15 +224,17 @@ private.attachApi = function () {
 			required: ['port']
 		});
 
+		var block;
+
 		try {
-			var block = library.logic.block.objectNormalize(req.body.block);
+			block = library.logic.block.objectNormalize(req.body.block);
 		} catch (e) {
 			var peerIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-			var peerStr = peerIp ? peerIp + ":" + (isNaN(parseInt(req.headers['port'])) ? 'unkwnown' : parseInt(req.headers['port'])) : 'unknown';
+			var peerStr = peerIp ? peerIp + ":" + (isNaN(parseInt(req.headers.port)) ? 'unkwnown' : parseInt(req.headers.port)) : 'unknown';
 			library.logger.log('Block ' + (block ? block.id : 'null') + ' is not valid, ban 60 min', peerStr);
 
 			if (peerIp && report) {
-				modules.peer.state(ip.toLong(peerIp), parseInt(req.headers['port']), 0, 3600);
+				modules.peer.state(ip.toLong(peerIp), parseInt(req.headers.port), 0, 3600);
 			}
 
 			return res.sendStatus(200);
@@ -319,16 +321,16 @@ private.attachApi = function () {
 			},
 			required: ['port']
 		});
-
+		var transaction;
 		try {
-			var transaction = library.logic.transaction.objectNormalize(req.body.transaction);
+			transaction = library.logic.transaction.objectNormalize(req.body.transaction);
 		} catch (e) {
 			var peerIp = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-			var peerStr = peerIp ? peerIp + ":" + (isNaN(req.headers['port']) ? 'unknown' : req.headers['port']) : 'unknown';
+			var peerStr = peerIp ? peerIp + ":" + (isNaN(req.headers.port) ? 'unknown' : req.headers.port) : 'unknown';
 			library.logger.log('Received transaction ' + (transaction ? transaction.id : 'null') + ' is not valid, ban 60 min', peerStr);
 
 			if (peerIp && report) {
-				modules.peer.state(ip.toLong(peerIp), req.headers['port'], 0, 3600);
+				modules.peer.state(ip.toLong(peerIp), req.headers.port, 0, 3600);
 			}
 
 			return res.status(200).json({success: false, message: "Invalid transaction body"});
@@ -438,7 +440,7 @@ private.attachApi = function () {
 		library.logger.error(req.url, err.toString());
 		res.status(500).send({success: false, error: err.toString()});
 	});
-}
+};
 
 private.hashsum = function (obj) {
 	var buf = new Buffer(JSON.stringify(obj), 'utf8');
@@ -449,7 +451,7 @@ private.hashsum = function (obj) {
 	}
 
 	return bignum.fromBuffer(temp).toString();
-}
+};
 
 // Public methods
 Transport.prototype.broadcast = function (config, options, cb) {
@@ -467,7 +469,7 @@ Transport.prototype.broadcast = function (config, options, cb) {
 			cb && setImmediate(cb, err);
 		}
 	});
-}
+};
 
 Transport.prototype.getFromRandomPeer = function (config, options, cb) {
 	if (typeof options == 'function') {
@@ -486,9 +488,9 @@ Transport.prototype.getFromRandomPeer = function (config, options, cb) {
 			}
 		});
 	}, function (err, results) {
-		cb(err, results)
+		cb(err, results);
 	});
-}
+};
 
 /**
  * Send request to selected peer
@@ -556,7 +558,7 @@ Transport.prototype.getFromPeer = function (peer, options, cb) {
 			return;
 		}
 
-		response.headers['port'] = parseInt(response.headers['port']);
+		response.headers.port = parseInt(response.headers.port);
 		response.headers['share-port'] = parseInt(response.headers['share-port']);
 
 		var report = library.scheme.validate(response.headers, {
@@ -588,7 +590,7 @@ Transport.prototype.getFromPeer = function (peer, options, cb) {
 			return cb && cb(null, {body: body, peer: peer});
 		}
 
-		var port = response.headers['port'];
+		var port = response.headers.port;
 		if (port > 0 && port <= 65535 && response.headers['version'] == library.config.version) {
 			modules.peer.update({
 				ip: peer.ip,
