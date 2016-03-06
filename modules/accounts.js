@@ -21,11 +21,11 @@ function Vote() {
 		trs.asset.votes = data.votes;
 
 		return trs;
-	}
+	};
 
 	this.calculateFee = function (trs, sender) {
 		return 1 * constants.fixedPoint;
-	}
+	};
 
 	this.verify = function (trs, sender, cb) {
 		if (trs.recipientId != trs.senderId) {
@@ -43,11 +43,11 @@ function Vote() {
 		modules.delegates.checkDelegates(trs.senderPublicKey, trs.asset.votes, function (err) {
 			setImmediate(cb, err, trs);
 		});
-	}
+	};
 
 	this.process = function (trs, sender, cb) {
 		setImmediate(cb, null, trs);
-	}
+	};
 
 	this.getBytes = function (trs) {
 		try {
@@ -57,7 +57,7 @@ function Vote() {
 		}
 
 		return buf;
-	}
+	};
 
 	this.apply = function (trs, block, sender, cb) {
 		this.scope.account.merge(sender.address, {
@@ -67,7 +67,7 @@ function Vote() {
 		}, function (err) {
 			cb(err);
 		});
-	}
+	};
 
 	this.undo = function (trs, block, sender, cb) {
 		if (trs.asset.votes === null) return cb();
@@ -81,7 +81,7 @@ function Vote() {
 		}, function (err) {
 			cb(err);
 		});
-	}
+	};
 
 	this.applyUnconfirmed = function (trs, sender, cb) {
 		modules.delegates.checkUnconfirmedDelegates(trs.senderPublicKey, trs.asset.votes, function (err) {
@@ -95,7 +95,7 @@ function Vote() {
 				cb(err);
 			});
 		}.bind(this));
-	}
+	};
 
 	this.undoUnconfirmed = function (trs, sender, cb) {
 		if (trs.asset.votes === null) return cb();
@@ -105,7 +105,7 @@ function Vote() {
 		this.scope.account.merge(sender.address, {u_delegates: votesInvert}, function (err) {
 			cb(err);
 		});
-	}
+	};
 
 	this.objectNormalize = function (trs) {
 		var report = library.scheme.validate(trs.asset, {
@@ -126,26 +126,26 @@ function Vote() {
 		}
 
 		return trs;
-	}
+	};
 
 	this.dbRead = function (raw) {
 		// console.log(raw.v_votes);
 
 		if (!raw.v_votes) {
-			return null
+			return null;
 		} else {
 			var votes = raw.v_votes.split(',');
 
 			return {votes: votes};
 		}
-	}
+	};
 
 	this.dbSave = function (trs, cb) {
 		library.dbLite.query("INSERT INTO votes(votes, transactionId) VALUES($votes, $transactionId)", {
 			votes: util.isArray(trs.asset.votes) ? trs.asset.votes.join(',') : null,
 			transactionId: trs.id
 		}, cb);
-	}
+	};
 
 	this.ready = function (trs, sender) {
 		if (sender.multisignatures.length) {
@@ -156,7 +156,7 @@ function Vote() {
 		} else {
 			return true;
 		}
-	}
+	};
 }
 
 function Username() {
@@ -169,18 +169,18 @@ function Username() {
 		};
 
 		return trs;
-	}
+	};
 
 	this.calculateFee = function (trs, sender) {
 		return 100 * constants.fixedPoint;
-	}
+	};
 
 	this.verify = function (trs, sender, cb) {
 		if (trs.recipientId) {
 			return setImmediate(cb, "Invalid recipient");
 		}
 
-		if (trs.amount != 0) {
+		if (trs.amount !== 0) {
 			return setImmediate(cb, "Invalid transaction amount");
 		}
 
@@ -198,7 +198,7 @@ function Username() {
 			return setImmediate(cb, "Username cannot be a potential address");
 		}
 
-		if (trs.asset.username.alias.length == 0 || trs.asset.username.alias.length > 20) {
+		if (trs.asset.username.alias.length === 0 || trs.asset.username.alias.length > 20) {
 			return setImmediate(cb, "Invalid username length. Must be between 1 to 20 characters");
 		}
 
@@ -223,11 +223,11 @@ function Username() {
 
 			cb(null, trs);
 		});
-	}
+	};
 
 	this.process = function (trs, sender, cb) {
 		setImmediate(cb, null, trs);
-	}
+	};
 
 	this.getBytes = function (trs) {
 		try {
@@ -237,7 +237,7 @@ function Username() {
 		}
 
 		return buf;
-	}
+	};
 
 	this.apply = function (trs, block, sender, cb) {
 		self.setAccountAndGet({
@@ -247,7 +247,7 @@ function Username() {
 			nameexist: 1,
 			u_nameexist: 0
 		}, cb);
-	}
+	};
 
 	this.undo = function (trs, block, sender, cb) {
 		self.setAccountAndGet({
@@ -257,7 +257,7 @@ function Username() {
 			nameexist: 0,
 			u_nameexist: 1
 		}, cb);
-	}
+	};
 
 	this.applyUnconfirmed = function (trs, sender, cb) {
 		if (sender.username || sender.u_username) {
@@ -281,11 +281,11 @@ function Username() {
 
 			self.setAccountAndGet({address: sender.address, u_username: trs.asset.username.alias, u_nameexist: 1}, cb);
 		});
-	}
+	};
 
 	this.undoUnconfirmed = function (trs, sender, cb) {
 		self.setAccountAndGet({address: sender.address, u_username: null, u_nameexist: 0}, cb);
-	}
+	};
 
 	this.objectNormalize = function (trs) {
 		var report = library.scheme.validate(trs.asset.username, {
@@ -309,27 +309,27 @@ function Username() {
 		}
 
 		return trs;
-	}
+	};
 
 	this.dbRead = function (raw) {
 		if (!raw.u_alias) {
-			return null
+			return null;
 		} else {
 			var username = {
 				alias: raw.u_alias,
 				publicKey: raw.t_senderPublicKey
-			}
+			};
 
 			return {username: username};
 		}
-	}
+	};
 
 	this.dbSave = function (trs, cb) {
 		library.dbLite.query("INSERT INTO usernames(username, transactionId) VALUES($username, $transactionId)", {
 			username: trs.asset.username.alias,
 			transactionId: trs.id
 		}, cb);
-	}
+	};
 
 	this.ready = function (trs, sender) {
 		if (sender.multisignatures.length) {
@@ -340,7 +340,7 @@ function Username() {
 		} else {
 			return true;
 		}
-	}
+	};
 }
 
 // Constructor
@@ -419,12 +419,12 @@ private.attachApi = function () {
 							username: fullAccount.username,
 							balance: fullAccount.balance,
 							publicKey: fullAccount.publicKey
-						}
+						};
 					});
 
 					res.json({success: true, accounts: accounts});
-				})
-			})
+				});
+			});
 		});
 	}
 
@@ -442,14 +442,14 @@ private.attachApi = function () {
 		library.logger.error(req.url, err.toString());
 		res.status(500).send({success: false, error: err.toString()});
 	});
-}
+};
 
 private.openAccount = function (secret, cb) {
 	var hash = crypto.createHash('sha256').update(secret, 'utf8').digest();
 	var keypair = ed.MakeKeypair(hash);
 
 	self.setAccountAndGet({publicKey: keypair.publicKey.toString('hex')}, cb);
-}
+};
 
 // Public methods
 Accounts.prototype.generateAddressByPublicKey = function (publicKey) {
@@ -464,7 +464,7 @@ Accounts.prototype.generateAddressByPublicKey = function (publicKey) {
 		throw Error("wrong publicKey " + publicKey);
 	}
 	return address;
-}
+};
 
 Accounts.prototype.getAccount = function (filter, fields, cb) {
 	if (filter.publicKey) {
@@ -473,11 +473,11 @@ Accounts.prototype.getAccount = function (filter, fields, cb) {
 	}
 
 	library.logic.account.get(filter, fields, cb);
-}
+};
 
 Accounts.prototype.getAccounts = function (filter, fields, cb) {
 	library.logic.account.getAll(filter, fields, cb);
-}
+};
 
 Accounts.prototype.setAccountAndGet = function (data, cb) {
 	var address = data.address || null;
@@ -497,7 +497,7 @@ Accounts.prototype.setAccountAndGet = function (data, cb) {
 		}
 		library.logic.account.get({address: address}, cb);
 	});
-}
+};
 
 Accounts.prototype.mergeAccountAndGet = function (data, cb) {
 	var address = data.address || null;
@@ -512,16 +512,16 @@ Accounts.prototype.mergeAccountAndGet = function (data, cb) {
 		throw cb("Invalid public key");
 	}
 	library.logic.account.merge(address, data, cb);
-}
+};
 
 Accounts.prototype.sandboxApi = function (call, args, cb) {
 	sandboxHelper.callMethod(shared, call, args, cb);
-}
+};
 
 // Events
 Accounts.prototype.onBind = function (scope) {
 	modules = scope;
-}
+};
 
 // Shared
 shared.open = function (req, cb) {
@@ -562,7 +562,7 @@ shared.open = function (req, cb) {
 			}
 		});
 	});
-}
+};
 
 shared.getBalance = function (req, cb) {
 	var query = req.body;
@@ -595,7 +595,7 @@ shared.getBalance = function (req, cb) {
 			cb(null, {balance: balance, unconfirmedBalance: unconfirmedBalance});
 		});
 	});
-}
+};
 
 shared.getPublickey = function (req, cb) {
 	var query = req.body;
@@ -623,7 +623,7 @@ shared.getPublickey = function (req, cb) {
 			cb(null, {publicKey: account.publicKey});
 		});
 	});
-}
+};
 
 shared.generatePublickey = function (req, cb) {
 	var body = req.body;
@@ -651,7 +651,7 @@ shared.generatePublickey = function (req, cb) {
 			});
 		});
 	});
-}
+};
 
 shared.getDelegates = function (req, cb) {
 	var query = req.body;
@@ -705,7 +705,7 @@ shared.getDelegates = function (req, cb) {
 						var percent = 100 - (delegates[i].missedblocks / ((delegates[i].producedblocks + delegates[i].missedblocks) / 100));
 						percent = percent || 0;
 						var outsider = i + 1 > slots.delegates && delegates[i].virgin;
-						delegates[i].productivity = !outsider ? delegates[i].virgin ? 0 : parseFloat(Math.floor(percent * 100) / 100).toFixed(2) : null
+						delegates[i].productivity = !outsider ? delegates[i].virgin ? 0 : parseFloat(Math.floor(percent * 100) / 100).toFixed(2) : null;
 					}
 
 					var result = delegates.filter(function (delegate) {
@@ -719,12 +719,12 @@ shared.getDelegates = function (req, cb) {
 			}
 		});
 	});
-}
+};
 
 shared.getDelegatesFee = function (req, cb) {
 	var query = req.body;
 	cb(null, {fee: 1 * constants.fixedPoint});
-}
+};
 
 shared.addDelegates = function (req, cb) {
 	var body = req.body;
@@ -858,12 +858,12 @@ shared.addDelegates = function (req, cb) {
 			cb(null, {transaction: transaction[0]});
 		});
 	});
-}
+};
 
 shared.getUsernameFee = function (req, cb) {
 	var query = req.body;
 	cb(null, {fee: 1 * constants.fixedPoint});
-}
+};
 
 shared.addUsername = function (req, cb) {
 	var body = req.body;
@@ -1003,7 +1003,7 @@ shared.addUsername = function (req, cb) {
 			cb(null, {transaction: transaction[0]});
 		});
 	});
-}
+};
 
 shared.getAccount = function (req, cb) {
 	var query = req.body;
@@ -1045,7 +1045,7 @@ shared.getAccount = function (req, cb) {
 			});
 		});
 	});
-}
+};
 
 shared.getUsername = function (req, cb) {
 	var query = req.body;
@@ -1083,7 +1083,7 @@ shared.getUsername = function (req, cb) {
 			});
 		});
 	});
-}
+};
 
 // Export
 module.exports = Accounts;

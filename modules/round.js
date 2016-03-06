@@ -40,30 +40,30 @@ function RoundChanges (round) {
       rewards : rewards,
       balance : fees + rewards
     };
-  }
+  };
 }
 
 Round.prototype.loaded = function () {
 	return private.loaded;
-}
+};
 
 // Public methods
 Round.prototype.calc = function (height) {
 	return Math.floor(height / slots.delegates) + (height % slots.delegates > 0 ? 1 : 0);
-}
+};
 
 Round.prototype.getVotes = function (round, cb) {
 	library.dbLite.query("select delegate, amount from ( " +
 		"select m.delegate, sum(m.amount) amount, m.round from mem_round m " +
 		"group by m.delegate, m.round " +
 		") where round = $round", {round: round}, {delegate: String, amount: Number}, function (err, rows) {
-		cb(err, rows)
+		cb(err, rows);
 	});
-}
+};
 
 Round.prototype.flush = function (round, cb) {
 	library.dbLite.query("delete from mem_round where round = $round", {round: round}, cb);
-}
+};
 
 Round.prototype.directionSwap = function (direction, lastBlock, cb) {
 	if (direction == 'backward') {
@@ -77,7 +77,7 @@ Round.prototype.directionSwap = function (direction, lastBlock, cb) {
 		private.unDelegatesByRound = {};
 		self.flush(self.calc(lastBlock.height), cb);
 	}
-}
+};
 
 Round.prototype.backwardTick = function (block, previousBlock, cb) {
 	function done(err) {
@@ -153,7 +153,7 @@ Round.prototype.backwardTick = function (block, previousBlock, cb) {
 								self.flush(round, function (err2) {
 									cb(err || err2);
 								});
-							})
+							});
 						});
 					},
 					function (cb) {
@@ -203,7 +203,7 @@ Round.prototype.backwardTick = function (block, previousBlock, cb) {
 								self.flush(round, function (err2) {
 									cb(err || err2);
 								});
-							})
+							});
 						});
 					}
 				], function (err) {
@@ -219,7 +219,7 @@ Round.prototype.backwardTick = function (block, previousBlock, cb) {
 			done();
 		}
 	});
-}
+};
 
 Round.prototype.tick = function (block, cb) {
 	function done(err) {

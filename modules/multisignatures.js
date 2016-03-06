@@ -28,11 +28,11 @@ function Multisignature() {
 		};
 
 		return trs;
-	}
+	};
 
 	this.calculateFee = function (trs, sender) {
 		return ((trs.asset.multisignature.keysgroup.length + 1) * 5) * constants.fixedPoint;
-	}
+	};
 
 	this.verify = function (trs, sender, cb) {
 		if (!trs.asset.multisignature) {
@@ -43,7 +43,7 @@ function Multisignature() {
 			return setImmediate(cb, "Invalid transaction asset: " + trs.id);
 		}
 
-		if (trs.asset.multisignature.keysgroup.length == 0) {
+		if (trs.asset.multisignature.keysgroup.length === 0) {
 			return setImmediate(cb, "Multisignature group must contain at least one member");
 		}
 
@@ -122,11 +122,11 @@ function Multisignature() {
 
 			setImmediate(cb, null, trs);
 		});
-	}
+	};
 
 	this.process = function (trs, sender, cb) {
 		setImmediate(cb, null, trs);
-	}
+	};
 
 	this.getBytes = function (trs, skip) {
 		var keysgroupBuffer = new Buffer(trs.asset.multisignature.keysgroup.join(''), 'utf8');
@@ -140,7 +140,7 @@ function Multisignature() {
 		bb.flip();
 
 		return bb.toBuffer();
-	}
+	};
 
 	this.apply = function (trs, block, sender, cb) {
 		private.unconfirmedSignatures[sender.address] = false;
@@ -167,10 +167,10 @@ function Multisignature() {
 					publicKey: key
 				}, function (err) {
 					cb(err);
-				})
+				});
 			}, cb);
 		});
-	}
+	};
 
 	this.undo = function (trs, block, sender, cb) {
 		var multiInvert = Diff.reverse(trs.asset.multisignature.keysgroup);
@@ -185,7 +185,7 @@ function Multisignature() {
 		}, function (err) {
 			cb(err);
 		});
-	}
+	};
 
 	this.applyUnconfirmed = function (trs, sender, cb) {
 		if (private.unconfirmedSignatures[sender.address]) {
@@ -205,7 +205,7 @@ function Multisignature() {
 		}, function (err) {
 			cb();
 		});
-	}
+	};
 
 	this.undoUnconfirmed = function (trs, sender, cb) {
 		var multiInvert = Diff.reverse(trs.asset.multisignature.keysgroup);
@@ -218,7 +218,7 @@ function Multisignature() {
 		}, function (err) {
 			cb(err);
 		});
-	}
+	};
 
 	this.objectNormalize = function (trs) {
 		var report = library.scheme.validate(trs.asset.multisignature, {
@@ -248,21 +248,21 @@ function Multisignature() {
 		}
 
 		return trs;
-	}
+	};
 
 	this.dbRead = function (raw) {
 		if (!raw.m_keysgroup) {
-			return null
+			return null;
 		} else {
 			var multisignature = {
 				min: raw.m_min,
 				lifetime: raw.m_lifetime,
 				keysgroup: raw.m_keysgroup.split(',')
-			}
+			};
 
 			return {multisignature: multisignature};
 		}
-	}
+	};
 
 	this.dbSave = function (trs, cb) {
 		library.dbLite.query("INSERT INTO multisignatures(min, lifetime, keysgroup, transactionId) VALUES($min, $lifetime, $keysgroup, $transactionId)", {
@@ -278,7 +278,7 @@ function Multisignature() {
 				return cb();
 			}
 		});
-	}
+	};
 
 	this.ready = function (trs, sender) {
 		if (!trs.signatures) {
@@ -290,7 +290,7 @@ function Multisignature() {
 		} else {
 			return trs.signatures.length >= sender.multimin - 1;
 		}
-	}
+	};
 }
 
 // Constructor
@@ -332,17 +332,17 @@ private.attachApi = function () {
 		library.logger.error(req.url, err.toString());
 		res.status(500).send({success: false, error: err.toString()});
 	});
-}
+};
 
 // Public methods
 Multisignatures.prototype.sandboxApi = function (call, args, cb) {
 	sandboxHelper.callMethod(shared, call, args, cb);
-}
+};
 
 // Events
 Multisignatures.prototype.onBind = function (scope) {
 	modules = scope;
-}
+};
 
 shared.getAccounts = function (req, cb) {
 	var query = req.body;
@@ -406,7 +406,7 @@ shared.getAccounts = function (req, cb) {
 			});
 		});
 	});
-}
+};
 
 // Shared
 shared.pending = function (req, cb) {
@@ -490,7 +490,7 @@ shared.pending = function (req, cb) {
 			return cb(null, {transactions: pendings});
 		});
 	});
-}
+};
 
 Multisignatures.prototype.processSignature = function (tx, cb) {
 	var transaction = modules.transactions.getUnconfirmedTransaction(tx.transaction);
@@ -535,7 +535,7 @@ Multisignatures.prototype.processSignature = function (tx, cb) {
 		}
 
 		if (!verify) {
-			return cb("Failed to verify signature")
+			return cb("Failed to verify signature");
 		}
 
 		done(cb);
@@ -581,7 +581,7 @@ Multisignatures.prototype.processSignature = function (tx, cb) {
 			return done(cb);
 		});
 	}
-}
+};
 
 shared.sign = function (req, cb) {
 	var body = req.body;
@@ -692,7 +692,7 @@ shared.sign = function (req, cb) {
 			});
 		}
 	});
-}
+};
 
 shared.addMultisignature = function (req, cb) {
 	var body = req.body;
@@ -789,7 +789,7 @@ shared.addMultisignature = function (req, cb) {
 			cb(null, {transactionId: transaction[0].id});
 		});
 	});
-}
+};
 
 
 // Export

@@ -7,7 +7,7 @@ var util = require('util'),
 // Private fields
 var modules, library, self, private = {}, shared = {};
 
-private.loaded = false
+private.loaded = false;
 
 // Constructor
 function Server(cb, scope) {

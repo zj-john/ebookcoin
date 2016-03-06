@@ -44,7 +44,7 @@ private.attachApi = function () {
 		library.logger.error(req.url, err.toString());
 		res.status(500).send({success: false, error: err.toString()});
 	});
-}
+};
 
 private.syncTrigger = function (turnOn) {
 	if (turnOn === false && private.syncIntervalId) {
@@ -60,7 +60,7 @@ private.syncTrigger = function (turnOn) {
 			private.syncIntervalId = setTimeout(nextSyncTrigger, 1000);
 		});
 	}
-}
+};
 
 private.loadFullDb = function (peer, cb) {
 	var peerStr = peer ? ip.fromLong(peer.ip) + ":" + peer.port : 'unknown';
@@ -70,7 +70,7 @@ private.loadFullDb = function (peer, cb) {
 	library.logger.debug("Loading blocks from genesis from " + peerStr);
 
 	modules.blocks.loadBlocksFromPeer(peer, commonBlockId, cb);
-}
+};
 
 private.findUpdate = function (lastBlock, peer, cb) {
 	var peerStr = peer ? ip.fromLong(peer.ip) + ":" + peer.port : 'unknown';
@@ -206,7 +206,7 @@ private.findUpdate = function (lastBlock, peer, cb) {
 							var trs = modules.transactions.shiftHiddenTransaction();
 							async.whilst(
 								function () {
-									return trs
+									return trs;
 								},
 								function (next) {
 									modules.transactions.processUnconfirmedTransaction(trs, true, function () {
@@ -217,10 +217,10 @@ private.findUpdate = function (lastBlock, peer, cb) {
 						}
 					});
 				}
-			], cb)
+			], cb);
 		});
 	});
-}
+};
 
 private.loadBlocks = function (lastBlock, cb) {
 	modules.transport.getFromRandomPeer({
@@ -264,7 +264,7 @@ private.loadBlocks = function (lastBlock, cb) {
 			cb();
 		}
 	});
-}
+};
 
 private.loadSignatures = function (cb) {
 	modules.transport.getFromRandomPeer({
@@ -304,7 +304,7 @@ private.loadSignatures = function (cb) {
 			}, cb);
 		});
 	});
-}
+};
 
 private.loadUnconfirmedTransactions = function (cb) {
 	modules.transport.getFromRandomPeer({
@@ -312,7 +312,7 @@ private.loadUnconfirmedTransactions = function (cb) {
 		method: 'GET'
 	}, function (err, data) {
 		if (err) {
-			return cb()
+			return cb();
 		}
 
 		var report = library.scheme.validate(data.body, {
@@ -348,7 +348,7 @@ private.loadUnconfirmedTransactions = function (cb) {
 			modules.transactions.receiveTransactions(transactions, cb);
 		}, cb);
 	});
-}
+};
 
 private.loadBlockChain = function () {
 	var offset = 0, limit = library.config.loading.loadPerIteration;
@@ -368,7 +368,7 @@ private.loadBlockChain = function () {
 					} else {
 						async.until(
 							function () {
-								return count < offset
+								return count < offset;
 							}, function (cb) {
 								library.logger.info('Current ' + offset);
 								setImmediate(function () {
@@ -382,23 +382,23 @@ private.loadBlockChain = function () {
 
 										cb();
 									});
-								})
+								});
 							}, function (err) {
 								if (err) {
 									library.logger.error('loadBlocksOffset', err);
 									if (err.block) {
-										library.logger.error('Blockchain failed at ', err.block.height)
+										library.logger.error('Blockchain failed at ', err.block.height);
 										modules.blocks.simpleDeleteAfterBlock(err.block.id, function (err, res) {
 											library.logger.error('Blockchain clipped');
 											library.bus.message('blockchainReady');
-										})
+										});
 									}
 								} else {
 									library.logger.info('Blockchain ready');
 									library.bus.message('blockchainReady');
 								}
 							}
-						)
+						);
 					}
 				});
 			}
@@ -418,7 +418,7 @@ private.loadBlockChain = function () {
 
 				modules.blocks.count(function (err, count) {
 					if (err) {
-						return library.logger.error('Failed to count blocks', err)
+						return library.logger.error('Failed to count blocks', err);
 					}
 
 					library.logger.info('Blocks ' + count);
@@ -443,7 +443,7 @@ private.loadBlockChain = function () {
 										} else {
 											// Load delegates
 											library.dbLite.query("SELECT lower(hex(publicKey)) FROM mem_accounts WHERE isDelegate=1", ['publicKey'], function (err, delegates) {
-												if (err || delegates.length == 0) {
+												if (err || delegates.length === 0) {
 													library.logger.error(err || "No delegates, reload database");
 													library.logger.info("Unable to load without verifying, clearing accounts from database and loading");
 													load(count);
@@ -477,16 +477,16 @@ private.loadBlockChain = function () {
 		}
 	});
 
-}
+};
 
 // Public methods
 Loader.prototype.syncing = function () {
 	return !!private.syncIntervalId;
-}
+};
 
 Loader.prototype.sandboxApi = function (call, args, cb) {
 	sandboxHelper.callMethod(shared, call, args, cb);
-}
+};
 
 // Events
 Loader.prototype.onPeerReady = function () {
@@ -505,7 +505,7 @@ Loader.prototype.onPeerReady = function () {
 			private.isActive = false;
 			if (!private.loaded) return;
 
-			setTimeout(nextLoadBlock, 9 * 1000)
+			setTimeout(nextLoadBlock, 9 * 1000);
 		});
 	});
 
@@ -513,7 +513,7 @@ Loader.prototype.onPeerReady = function () {
 		if (!private.loaded) return;
 		private.loadUnconfirmedTransactions(function (err) {
 			err && library.logger.error('loadUnconfirmedTransactions timer', err);
-			setTimeout(nextLoadUnconfirmedTransactions, 14 * 1000)
+			setTimeout(nextLoadUnconfirmedTransactions, 14 * 1000);
 		});
 
 	});
@@ -523,20 +523,20 @@ Loader.prototype.onPeerReady = function () {
 		private.loadSignatures(function (err) {
 			err && library.logger.error('loadSignatures timer', err);
 
-			setTimeout(nextLoadSignatures, 14 * 1000)
+			setTimeout(nextLoadSignatures, 14 * 1000);
 		});
 	});
-}
+};
 
 Loader.prototype.onBind = function (scope) {
 	modules = scope;
 
 	private.loadBlockChain();
-}
+};
 
 Loader.prototype.onBlockchainReady = function () {
 	private.loaded = true;
-}
+};
 
 Loader.prototype.cleanup = function (cb) {
 	private.loaded = false;
@@ -545,13 +545,13 @@ Loader.prototype.cleanup = function (cb) {
 	} else {
 		setImmediate(function nextWatch() {
 			if (private.isActive) {
-				setTimeout(nextWatch, 1 * 1000)
+				setTimeout(nextWatch, 1 * 1000);
 			} else {
 				cb();
 			}
 		});
 	}
-}
+};
 
 // Shared
 shared.status = function (req, cb) {
@@ -560,7 +560,7 @@ shared.status = function (req, cb) {
 		now: private.loadingLastBlock.height,
 		blocksCount: private.total
 	});
-}
+};
 
 shared.sync = function (req, cb) {
 	cb(null, {
@@ -568,7 +568,7 @@ shared.sync = function (req, cb) {
 		blocks: private.blocksToSync,
 		height: modules.blocks.getLastBlock().height
 	});
-}
+};
 
 // Export
 module.exports = Loader;
