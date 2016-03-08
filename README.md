@@ -46,7 +46,7 @@ Install node modules:
 npm install
 ```
 
-Load git submodules ([ebookcoin-ui](https://github.com/Ebookcoin/ebookcoin-ui) and [ebookcoin-js](https://github.com/Ebookcoin/ebookcoin-js)):
+Load git submodules ([client](https://github.com/Ebookcoin/client) and [ebookcoin-js](https://github.com/Ebookcoin/ebookcoin-js)):
 
 ```
 git submodule init
