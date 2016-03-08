@@ -1,3 +1,5 @@
+//todo delete this module.
+
 var ed2curve = require('ed2curve');
 var nacl_factory = require("js-nacl");
 // var nacl = nacl_factory.instantiate();
@@ -19,7 +21,7 @@ function decrypt(message, nonce, senderPublicKey, recipientPrivateKey) {
 }
 
 function getNonce() {
-	return nacl.crypto_box_random_nonce();;
+	return nacl.crypto_box_random_nonce();
 }
 
 function cryptobox(text, nonce, key) {
