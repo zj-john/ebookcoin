@@ -18,14 +18,14 @@ function Contact() {
 
 		trs.asset.contact = {
 			address: data.contactAddress
-		}
+		};
 
 		return trs;
-	}
+	};
 
 	this.calculateFee = function (trs, sender) {
 		return 1 * constants.fixedPoint;
-	}
+	};
 
 	this.verify = function (trs, sender, cb) {
 		if (!trs.asset.contact) {
@@ -41,7 +41,7 @@ function Contact() {
 			return setImmediate(cb, "Contact is not an address: " + trs.asset.contact.address);
 		}
 
-		if (trs.amount != 0) {
+		if (trs.amount !== 0) {
 			return setImmediate(cb, "Invalid amount: " + trs.id);
 		}
 
@@ -55,11 +55,11 @@ function Contact() {
 			}
 			setImmediate(cb, err, trs);
 		});
-	}
+	};
 
 	this.process = function (trs, sender, cb) {
 		setImmediate(cb, null, trs);
-	}
+	};
 
 	this.getBytes = function (trs) {
 		try {
@@ -76,7 +76,7 @@ function Contact() {
 		}
 
 		return bb.toBuffer()
-	}
+	};
 
 	this.apply = function (trs, block, sender, cb) {
 		this.scope.account.merge(sender.address,
@@ -87,7 +87,7 @@ function Contact() {
 			}, function (err) {
 				cb(err);
 			});
-	}
+	};
 
 	this.undo = function (trs, block, sender, cb) {
 		var contactsInvert = Diff.reverse([trs.asset.contact.address]);
@@ -99,7 +99,7 @@ function Contact() {
 		}, function (err) {
 			cb(err);
 		});
-	}
+	};
 
 	this.applyUnconfirmed = function (trs, sender, cb) {
 		self.checkUnconfirmedContacts(trs.senderPublicKey, [trs.asset.contact.address], function (err) {
@@ -113,7 +113,7 @@ function Contact() {
 				cb(err);
 			});
 		}.bind(this));
-	}
+	};
 
 	this.undoUnconfirmed = function (trs, sender, cb) {
 		var contactsInvert = Diff.reverse([trs.asset.contact.address]);
@@ -121,7 +121,7 @@ function Contact() {
 		this.scope.account.merge(sender.address, {u_contacts: contactsInvert}, function (err) {
 			cb(err);
 		});
-	}
+	};
 
 	this.objectNormalize = function (trs) {
 		var report = library.scheme.validate(trs.asset.contact, {
@@ -140,7 +140,7 @@ function Contact() {
 		}
 
 		return trs;
-	}
+	};
 
 	this.dbRead = function (raw) {
 		if (!raw.c_address) {
@@ -149,18 +149,18 @@ function Contact() {
 			var contact = {
 				transactionId: raw.t_id,
 				address: raw.c_address
-			}
+			};
 
 			return {contact: contact};
 		}
-	}
+	};
 
 	this.dbSave = function (trs, cb) {
 		library.dbLite.query("INSERT INTO contacts(address, transactionId) VALUES($address, $transactionId)", {
 			address: trs.asset.contact.address,
 			transactionId: trs.id
 		}, cb);
-	}
+	};
 
 	this.ready = function (trs, sender) {
 		if (sender.multisignatures.length) {
@@ -171,7 +171,7 @@ function Contact() {
 		} else {
 			return true;
 		}
-	}
+	};
 }
 
 // Constructor
@@ -212,7 +212,7 @@ private.attachApi = function () {
 		library.logger.error(req.url, err.toString());
 		res.status(500).send({success: false, error: err.toString()});
 	});
-}
+};
 
 // Public methods
 Contacts.prototype.checkContacts = function (publicKey, contacts, cb) {
@@ -246,7 +246,7 @@ Contacts.prototype.checkContacts = function (publicKey, contacts, cb) {
 	} else {
 		setImmediate(cb, "Please provide an array of contacts");
 	}
-}
+};
 
 Contacts.prototype.checkUnconfirmedContacts = function (publicKey, contacts, cb) {
 	var selfAddress = modules.accounts.generateAddressByPublicKey(publicKey);
@@ -294,7 +294,7 @@ Contacts.prototype.checkUnconfirmedContacts = function (publicKey, contacts, cb)
 	} else {
 		return setImmediate(cb, "Please provide an array of contacts");
 	}
-}
+};
 
 Contacts.prototype.sandboxApi = function (call, args, cb) {
 	sandboxHelper.callMethod(shared, call, args, cb);
@@ -303,7 +303,7 @@ Contacts.prototype.sandboxApi = function (call, args, cb) {
 // Events
 Contacts.prototype.onBind = function (scope) {
 	modules = scope;
-}
+};
 
 shared.getUnconfirmedContacts = function (req, cb) {
 	var query = req.body;
@@ -338,7 +338,7 @@ shared.getUnconfirmedContacts = function (req, cb) {
 			return cb(null, {contacts: contacts});
 		});
 	});
-}
+};
 
 // Shared
 shared.getContacts = function (req, cb) {
@@ -401,7 +401,7 @@ shared.getContacts = function (req, cb) {
 			});
 		});
 	});
-}
+};
 
 shared.addContact = function (req, cb) {
 	var body = req.body;
@@ -571,12 +571,12 @@ shared.addContact = function (req, cb) {
 			cb(null, {transaction: transaction[0]});
 		});
 	});
-}
+};
 
 shared.getFee = function (req, cb) {
 	var query = req.body;
 	cb(null, {fee: 1 * constants.fixedPoint})
-}
+};
 
 // Export
 module.exports = Contacts;

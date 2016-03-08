@@ -169,16 +169,16 @@ function Crypto(cb, scope) {
 // Public methods
 Crypto.prototype.sandboxApi = function (call, args, cb) {
 	sandboxHelper.callMethod(shared, call, args, cb);
-}
+};
 
 // Events
 Crypto.prototype.onBind = function (scope) {
 	modules = scope;
-}
+};
 
 Crypto.prototype.onBlockchainReady = function () {
 	private.loaded = true;
-}
+};
 
 // Shared
 module.exports = Crypto;
