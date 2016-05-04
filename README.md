@@ -2,7 +2,7 @@
 
 亿书：加密货币驱动的电子书写作和版权保护应用。源码解析与开发指南：[《Nodejs开发加密货币》][]，官方开发交流群：185046161
 
-Ebookcoin is a decentralized application for eBook-writing and copyright-protection powered by the next-generation Crypto Currency. For more information please refer to our website: http://ebookcoin.com/ (coming soon).
+Ebookcoin is a decentralized application for eBook-writing and copyright-protection powered by the next-generation Crypto Currency. For more information please refer to our website: http://ebookchain.org/.
 
 ## Installation
 
