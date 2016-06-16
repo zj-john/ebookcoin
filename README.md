@@ -25,7 +25,7 @@ Install Node.js (version 0.12.x) + npm:
 
 ```
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
-nvm install 0.12.7
+nvm install 0.12.14
 ```
 
 Install grunt-cli (globally):
@@ -107,4 +107,4 @@ Copyright (c) 2016 Ebookcoin
 Copyright (c) 2014-2015 Crypti  
 
 
-[《Nodejs开发加密货币》]: http://book.btcnodejs.com
+[《Nodejs开发加密货币》]: http://bitcoin-on-nodejs.ebookchain.org
