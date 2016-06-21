@@ -86,7 +86,7 @@ var config = {
 		"multisignatures": "./modules/multisignatures.js",
 		"dapps": "./modules/dapps.js",
 		"sia": "./modules/sia.js",
-		// "crypto": "./modules/crypto.js",
+		"crypto": "./modules/crypto.js",
 		"sql": "./modules/sql.js"
 	}
 };
