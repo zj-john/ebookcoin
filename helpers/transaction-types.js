@@ -5,10 +5,12 @@ module.exports = {
 	VOTE : 3,
 	USERNAME : 4,
 	FOLLOW : 5,
-	MESSAGE : 6,
-	AVATAR : 7,
-	MULTI: 8,
-	DAPP: 9,
-	IN_TRANSFER: 10,
-	OUT_TRANSFER: 11
+	MULTI: 6,
+	DAPP: 7,
+	IN_TRANSFER: 8,
+	OUT_TRANSFER: 9,
+	ARTICALE: 10,
+	EBOOK: 11,
+  BUY: 12,
+	READ: 13
 }
