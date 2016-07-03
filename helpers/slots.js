@@ -5,7 +5,7 @@
  */
 
 function beginEpochTime() {
-    var d = new Date(Date.UTC(2016, 6, 20, 8, 0, 0, 0));
+    var d = new Date(Date.UTC(2016, 5, 20, 0, 0, 0, 0)); //Testnet starts from 2016.6.20
 
     return d;
 }

@@ -47,8 +47,8 @@ module.exports = function (grunt) {
 					     + util.format('cp %s/public/wallet.html %s/public/ && ', __dirname, version_dir)
 					     + util.format('cp %s/public/loading.html %s/public/ && ', __dirname, version_dir)
 					     + util.format('cp -rf %s/public/images %s/public/ && ', __dirname, version_dir)
-					     + util.format('cp -rf %s/public/partials %s/public/ && ', __dirname, version_dir)
-					     + util.format('cp -rf %s/public/static %s/public/ && ', __dirname, version_dir)
+					     + util.format('cp -rfL %s/public/partials %s/public/ && ', __dirname, version_dir)
+					     + util.format('cp -rfL %s/public/static %s/public/ && ', __dirname, version_dir)
 					     + util.format('mkdir -p %s/public/node_modules && ', version_dir)
 					     + util.format('cp -rf %s/public/node_modules/chart.js %s/public/node_modules && ', __dirname, version_dir)
 					     + util.format('cp -rf %s/public/node_modules/zeroclipboard %s/public/node_modules && ', __dirname, version_dir)
@@ -71,7 +71,9 @@ module.exports = function (grunt) {
 		compress: {
 			main: {
 				options: {
-					archive: version_dir + '.zip'
+          archive: version_dir + '.tar.gz',
+ 					mode: 'tgz',
+ 					level: 6
 				},
 				files: [
 					{ expand: true, dot: true, cwd: release_dir, src: [config.version + '/**'], dest: './' }
