@@ -1,3 +1,4 @@
+var constants = require('./constants.js');
 /**
  * Get time from Ebookcoin epoch.
  * @param {number|undefined} time Time in unix seconds
@@ -20,11 +21,6 @@ function getEpochTime(time) {
 }
 
 module.exports = {
-
-    interval: 10,
-
-    delegates: 101,
-
     getTime: function(time) {
         return getEpochTime(time);
     },
@@ -42,11 +38,11 @@ module.exports = {
         if (epochTime === undefined) {
             epochTime = this.getTime()
         }
-        return Math.floor(epochTime / this.interval);
+        return Math.floor(epochTime / constants.interval);
     },
 
     getSlotTime: function(slot) {
-        return slot * this.interval;
+        return slot * constants.interval;
     },
 
     getNextSlot: function() {
@@ -56,7 +52,7 @@ module.exports = {
     },
 
     getLastSlot: function(nextSlot) {
-        return nextSlot + this.delegates;
+        return nextSlot + constants.delegates;
     },
 
     roundTime: function(date) {

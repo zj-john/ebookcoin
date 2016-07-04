@@ -19,7 +19,7 @@ var private = {};
 private.types = {};
 
 function calc (height) {
-	return Math.floor(height / slots.delegates) + (height % slots.delegates > 0 ? 1 : 0);
+	return Math.floor(height / constants.delegates) + (height % constants.delegates > 0 ? 1 : 0);
 }
 
 // Public methods

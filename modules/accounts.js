@@ -704,7 +704,7 @@ shared.getDelegates = function (req, cb) {
 
 						var percent = 100 - (delegates[i].missedblocks / ((delegates[i].producedblocks + delegates[i].missedblocks) / 100));
 						percent = percent || 0;
-						var outsider = i + 1 > slots.delegates && delegates[i].virgin;
+						var outsider = i + 1 > constants.delegates && delegates[i].virgin;
 						delegates[i].productivity = !outsider ? delegates[i].virgin ? 0 : parseFloat(Math.floor(percent * 100) / 100).toFixed(2) : null;
 					}
 

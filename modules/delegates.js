@@ -456,7 +456,7 @@ private.getKeysSortByVote = function (cb) {
 	modules.accounts.getAccounts({
 		isDelegate: 1,
 		sort: {"vote": -1, "publicKey": 1},
-		limit: slots.delegates
+		limit: constants.delegates
 	}, ["publicKey"], function (err, rows) {
 		if (err) {
 			cb(err);
@@ -476,7 +476,7 @@ private.getBlockSlotData = function (slot, height, cb) {
 		var lastSlot = slots.getLastSlot(currentSlot);
 
 		for (; currentSlot < lastSlot; currentSlot += 1) {
-			var delegate_pos = currentSlot % slots.delegates;
+			var delegate_pos = currentSlot % constants.delegates;
 
 			var delegate_id = activeDelegates[delegate_pos];
 
@@ -520,7 +520,7 @@ private.loop = function (cb) {
 					cb(err);
 				});
 			} else {
-				// library.logger.log('Loop', 'exit: ' + _activeDelegates[slots.getSlotNumber() % slots.delegates] + ' delegate slot');
+				// library.logger.log('Loop', 'exit: ' + _activeDelegates[slots.getSlotNumber() % constants.delegates] + ' delegate slot');
 				setImmediate(cb);
 			}
 		}, function (err) {
@@ -711,9 +711,9 @@ Delegates.prototype.validateBlockSlot = function (block, cb) {
 			return cb(err);
 		}
 		var currentSlot = slots.getSlotNumber(block.timestamp);
-		var delegate_id = activeDelegates[currentSlot % slots.delegates];
-		var nextDelegate_id = activeDelegates[(currentSlot + 1) % slots.delegates];
-		var previousDelegate_id = activeDelegates[(currentSlot - 1) % slots.delegates];
+		var delegate_id = activeDelegates[currentSlot % constants.delegates];
+		var nextDelegate_id = activeDelegates[(currentSlot + 1) % constants.delegates];
+		var previousDelegate_id = activeDelegates[(currentSlot - 1) % constants.delegates];
 
 		if (delegate_id && block.generatorPublicKey == delegate_id) {
 			return cb();
@@ -799,7 +799,7 @@ shared.getDelegate = function (req, cb) {
 
 				var percent = 100 - (delegates[i].missedblocks / ((delegates[i].producedblocks + delegates[i].missedblocks) / 100));
 				percent = percent || 0;
-				var outsider = i + 1 > slots.delegates && delegates[i].virgin;
+				var outsider = i + 1 > constants.delegates && delegates[i].virgin;
 				delegates[i].productivity = !outsider ? delegates[i].virgin ? 0 : parseFloat(Math.floor(percent * 100) / 100).toFixed(2) : null;
 			}
 
@@ -918,7 +918,7 @@ shared.getDelegates = function (req, cb) {
 
 				var percent = 100 - (delegates[i].missedblocks / ((delegates[i].producedblocks + delegates[i].missedblocks) / 100));
 				percent = percent || 0;
-				var outsider = i + 1 > slots.delegates && delegates[i].virgin;
+				var outsider = i + 1 > constants.delegates && delegates[i].virgin;
 				delegates[i].productivity = !outsider ? delegates[i].virgin ? 0 : parseFloat(Math.floor(percent * 100) / 100).toFixed(2) : null;
 			}
 

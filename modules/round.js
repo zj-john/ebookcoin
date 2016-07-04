@@ -30,8 +30,8 @@ function RoundChanges (round) {
   var roundRewards = (private.rewardsByRound[round] || []);
 
   this.at = function (index) {
-    var fees = Math.floor(roundFees / slots.delegates),
-        feesRemaining = roundFees - (fees * slots.delegates),
+    var fees = Math.floor(roundFees / constants.delegates),
+        feesRemaining = roundFees - (fees * constants.delegates),
         rewards = parseInt(roundRewards[index]) || 0;
 
     return {
@@ -49,7 +49,7 @@ Round.prototype.loaded = function () {
 
 // Public methods
 Round.prototype.calc = function (height) {
-	return Math.floor(height / slots.delegates) + (height % slots.delegates > 0 ? 1 : 0);
+	return Math.floor(height / constants.delegates) + (height % constants.delegates > 0 ? 1 : 0);
 };
 
 Round.prototype.getVotes = function (round, cb) {
@@ -108,7 +108,7 @@ Round.prototype.backwardTick = function (block, previousBlock, cb) {
 		private.unDelegatesByRound[round].push(block.generatorPublicKey);
 
 		if (prevRound !== round || previousBlock.height == 1) {
-			if (private.unDelegatesByRound[round].length == slots.delegates || previousBlock.height == 1) {
+			if (private.unDelegatesByRound[round].length == constants.delegates || previousBlock.height == 1) {
 				var outsiders = [];
 				async.series([
 					function (cb) {
@@ -249,7 +249,7 @@ Round.prototype.tick = function (block, cb) {
 		var nextRound = self.calc(block.height + 1);
 
 		if (round !== nextRound || block.height == 1) {
-			if (private.delegatesByRound[round].length == slots.delegates || block.height == 1 || block.height == 101) {
+			if (private.delegatesByRound[round].length == constants.delegates || block.height == 1 || block.height == 101) {
 				var outsiders = [];
 
 				async.series([

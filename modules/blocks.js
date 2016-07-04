@@ -342,7 +342,7 @@ private.getIdSequence = function (height, cb) {
 		') s', {
 		'height': height,
 		'limit': 1000,
-		'delegates': slots.delegates
+		'delegates': constants.delegates
 	}, ['firstHeight', 'ids'], function (err, rows) {
 		if (err || !rows.length) {
 			cb(err ? err.toString() : "Can't get sequence before: " + height);
