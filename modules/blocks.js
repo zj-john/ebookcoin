@@ -1,17 +1,17 @@
-var crypto = require('crypto'),
-	ed = require('ed25519'),
-	ip = require('ip'),
-	ByteBuffer = require("bytebuffer"),
-	constants = require("../helpers/constants.js"),
-	genesisblock = null,
-	blockStatus = require("../helpers/blockStatus.js"),
-	constants = require('../helpers/constants.js'),
-	Router = require('../helpers/router.js'),
-	slots = require('../helpers/slots.js'),
-	util = require('util'),
-	async = require('async'),
-	TransactionTypes = require('../helpers/transaction-types.js'),
-	sandboxHelper = require('../helpers/sandbox.js');
+var crypto = require('crypto');
+var	ed = require('ed25519');
+var	ip = require('ip');
+var	ByteBuffer = require("bytebuffer");
+var	constants = require("../helpers/constants.js");
+var	genesisblock = null;
+var	blockStatus = require("../helpers/blockStatus.js");
+var	constants = require('../helpers/constants.js');
+var	Router = require('../helpers/router.js');
+var	slots = require('../helpers/slots.js');
+var	util = require('util');
+var	async = require('async');
+var	TransactionTypes = require('../helpers/transaction-types.js');
+var	sandboxHelper = require('../helpers/sandbox.js');
 
 require('array.prototype.findindex'); // Old node fix
 
@@ -132,10 +132,10 @@ private.saveGenesisBlock = function (cb) {
 					library.logger.error('saveBlock', err);
 				}
 
-				cb(err);
+				return cb(err);
 			});
 		} else {
-			cb();
+			return cb();
 		}
 	});
 };
