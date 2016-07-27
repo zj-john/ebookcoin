@@ -488,6 +488,7 @@ private.getBlockSlotData = function (slot, height, cb) {
 	});
 };
 
+//
 private.loop = function (cb) {
 	if (!Object.keys(private.keypairs).length) {
 		library.logger.debug('Loop', 'exit: no delegates');
@@ -712,14 +713,13 @@ Delegates.prototype.validateBlockSlot = function (block, cb) {
 		}
 		var currentSlot = slots.getSlotNumber(block.timestamp);
 		var delegate_id = activeDelegates[currentSlot % constants.delegates];
-		var nextDelegate_id = activeDelegates[(currentSlot + 1) % constants.delegates];
-		var previousDelegate_id = activeDelegates[(currentSlot - 1) % constants.delegates];
 
 		if (delegate_id && block.generatorPublicKey == delegate_id) {
 			return cb();
+		} else {
+			library.logger.error("Expected generator: " + delegate_id + " Received generator: " + block.generatorPublicKey);
+			return cb("Failed to verify slot: " + currentSlot);
 		}
-
-		cb("Failed to verify slot");
 	});
 };
 

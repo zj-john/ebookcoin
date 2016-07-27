@@ -564,7 +564,10 @@ Blocks.prototype.loadBlocksData = function (filter, options, cb) {
 Blocks.prototype.loadBlocksPart = function (filter, cb) {
 	self.loadBlocksData(filter, function (err, rows) {
 		// Notes:
-		// If while loading we encounter an error, for example, an invalid signature on a block & transaction, then we need to stop loading and remove all blocks after the last good block. We also need to process all transactions within the block.
+		// If while loading we encounter an error, for example, an invalid signature on
+		// a block & transaction, then we need to stop loading and remove all blocks
+		// after the last good block. We also need to process all transactions within
+		// the block.
 
 		var blocks = [];
 
