@@ -46,7 +46,7 @@ Install node modules:
 npm install
 ```
 
-Load git submodules ([client](https://github.com/Ebookcoin/client) and [ebookcoin-js](https://github.com/Ebookcoin/ebookcoin-js)):
+Load git submodules ([client](https://github.com/Ebookcoin/client) and [ebookcoin-js](https://github.com/Ebookcoin/ebookcoin-js))，[Error: Permission denied (publickey)?](https://help.github.com/articles/error-permission-denied-publickey/):
 
 ```
 git submodule init
