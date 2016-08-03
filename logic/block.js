@@ -14,10 +14,10 @@ function Block(scope, cb) {
 	cb && setImmediate(cb, null, this);
 }
 
-// Private methods
-var private = {};
-private.blockStatus = new blockStatus();
-private.getAddressByPublicKey = function (publicKey) {
+// private methods
+var privated = {};
+privated.blockStatus = new blockStatus();
+privated.getAddressByPublicKey = function (publicKey) {
 	var publicKeyHash = crypto.createHash('sha256').update(publicKey, 'hex').digest();
 	var temp = new Buffer(8);
 	for (var i = 0; i < 8; i++) {
@@ -40,7 +40,7 @@ Block.prototype.create = function (data) {
 
 	var nextHeight = (data.previousBlock) ? data.previousBlock.height + 1 : 1;
 
-	var reward = private.blockStatus.calcReward(nextHeight),
+	var reward = privated.blockStatus.calcReward(nextHeight),
 	    totalFee = 0, totalAmount = 0, size = 0;
 
 	var blockTransactions = [];
@@ -309,7 +309,7 @@ Block.prototype.dbRead = function (raw) {
 			payloadLength: parseInt(raw.b_payloadLength),
 			payloadHash: raw.b_payloadHash,
 			generatorPublicKey: raw.b_generatorPublicKey,
-			generatorId: private.getAddressByPublicKey(raw.b_generatorPublicKey),
+			generatorId: privated.getAddressByPublicKey(raw.b_generatorPublicKey),
 			blockSignature: raw.b_blockSignature,
 			confirmations: raw.b_confirmations
 		}

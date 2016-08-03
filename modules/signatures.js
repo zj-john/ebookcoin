@@ -9,8 +9,8 @@ var ed = require('ed25519'),
 	MilestoneBlocks = require("../helpers/milestoneBlocks.js"),
 	sandboxHelper = require('../helpers/sandbox.js');
 
-// Private fields
-var modules, library, self, private = {}, shared = {};
+// privated fields
+var modules, library, self, privated = {}, shared = {};
 
 function Signature() {
 	this.create = function (data, trs) {
@@ -158,16 +158,16 @@ function Signature() {
 function Signatures(cb, scope) {
 	library = scope;
 	self = this;
-	self.__private = private;
-	private.attachApi();
+	self.__private = privated;
+	privated.attachApi();
 
 	library.logic.transaction.attachAssetType(TransactionTypes.SIGNATURE, new Signature());
 
 	setImmediate(cb, null, self);
 }
 
-// Private methods
-private.attachApi = function () {
+// private methods
+privated.attachApi = function () {
 	var router = new Router();
 
 	router.use(function (req, res, next) {

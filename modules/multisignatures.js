@@ -13,9 +13,9 @@ var ed = require('ed25519'),
 	Diff = require('../helpers/diff.js'),
 	sandboxHelper = require('../helpers/sandbox.js');
 
-// Private fields
-var modules, library, self, private = {}, shared = {};
-private.unconfirmedSignatures = {};
+// privated fields
+var modules, library, self, privated = {}, shared = {};
+privated.unconfirmedSignatures = {};
 
 function Multisignature() {
 	this.create = function (data, trs) {
@@ -143,7 +143,7 @@ function Multisignature() {
 	};
 
 	this.apply = function (trs, block, sender, cb) {
-		private.unconfirmedSignatures[sender.address] = false;
+		privated.unconfirmedSignatures[sender.address] = false;
 
 		this.scope.account.merge(sender.address, {
 			multisignatures: trs.asset.multisignature.keysgroup,
@@ -175,7 +175,7 @@ function Multisignature() {
 	this.undo = function (trs, block, sender, cb) {
 		var multiInvert = Diff.reverse(trs.asset.multisignature.keysgroup);
 
-		private.unconfirmedSignatures[sender.address] = true;
+		privated.unconfirmedSignatures[sender.address] = true;
 		this.scope.account.merge(sender.address, {
 			multisignatures: multiInvert,
 			multimin: -trs.asset.multisignature.min,
@@ -188,7 +188,7 @@ function Multisignature() {
 	};
 
 	this.applyUnconfirmed = function (trs, sender, cb) {
-		if (private.unconfirmedSignatures[sender.address]) {
+		if (privated.unconfirmedSignatures[sender.address]) {
 			return setImmediate(cb, "Signature on this account is pending confirmation");
 		}
 
@@ -196,7 +196,7 @@ function Multisignature() {
 			return setImmediate(cb, "Account already has multisignatures enabled");
 		}
 
-		private.unconfirmedSignatures[sender.address] = true;
+		privated.unconfirmedSignatures[sender.address] = true;
 
 		this.scope.account.merge(sender.address, {
 			u_multisignatures: trs.asset.multisignature.keysgroup,
@@ -210,7 +210,7 @@ function Multisignature() {
 	this.undoUnconfirmed = function (trs, sender, cb) {
 		var multiInvert = Diff.reverse(trs.asset.multisignature.keysgroup);
 
-		private.unconfirmedSignatures[sender.address] = false;
+		privated.unconfirmedSignatures[sender.address] = false;
 		this.scope.account.merge(sender.address, {
 			u_multisignatures: multiInvert,
 			u_multimin: -trs.asset.multisignature.min,
@@ -298,16 +298,16 @@ function Multisignatures(cb, scope) {
 	library = scope;
 	genesisblock = library.genesisblock;
 	self = this;
-	self.__private = private;
-	private.attachApi();
+	self.__private = privated;
+	privated.attachApi();
 
 	library.logic.transaction.attachAssetType(TransactionTypes.MULTI, new Multisignature());
 
 	setImmediate(cb, null, self);
 }
 
-// Private methods
-private.attachApi = function () {
+// private methods
+privated.attachApi = function () {
 	var router = new Router();
 
 	router.use(function (req, res, next) {

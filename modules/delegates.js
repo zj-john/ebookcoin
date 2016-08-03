@@ -1,25 +1,25 @@
-var crypto = require('crypto'),
-	extend = require('extend'),
-	ed = require('ed25519'),
-	async = require('async'),
-	shuffle = require('knuth-shuffle').knuthShuffle,
-	Router = require('../helpers/router.js'),
-	slots = require('../helpers/slots.js'),
-	schedule = require('node-schedule'),
-	util = require('util'),
-	constants = require('../helpers/constants.js'),
-	TransactionTypes = require('../helpers/transaction-types.js'),
-	MilestoneBlocks = require("../helpers/milestoneBlocks.js"),
-	sandboxHelper = require('../helpers/sandbox.js');
+var crypto = require('crypto');
+var	extend = require('extend');
+var	ed = require('ed25519');
+var	async = require('async');
+var	shuffle = require('knuth-shuffle').knuthShuffle;
+var	Router = require('../helpers/router.js');
+var	slots = require('../helpers/slots.js');
+var	schedule = require('node-schedule');
+var	util = require('util');
+var	constants = require('../helpers/constants.js');
+var	TransactionTypes = require('../helpers/transaction-types.js');
+var	MilestoneBlocks = require("../helpers/milestoneBlocks.js");
+var	sandboxHelper = require('../helpers/sandbox.js');
 
 require('array.prototype.find'); // Old node fix
 
-// Private fields
-var modules, library, self, private = {}, shared = {};
+// private fields
+var modules, library, self, privated = {}, shared = {};
 
-private.loaded = false;
+privated.loaded = false;
 
-private.keypairs = {};
+privated.keypairs = {};
 
 function Delegate() {
 	this.create = function (data, trs) {
@@ -260,20 +260,20 @@ function Delegate() {
 function Delegates(cb, scope) {
 	library = scope;
 	self = this;
-	self.__private = private;
-	private.attachApi();
+	self.__private = privated;
+	privated.attachApi();
 
 	library.logic.transaction.attachAssetType(TransactionTypes.DELEGATE, new Delegate());
 
 	setImmediate(cb, null, self);
 }
 
-// Private methods
-private.attachApi = function () {
+// private methods
+privated.attachApi = function () {
 	var router = new Router();
 
 	router.use(function (req, res, next) {
-		if (modules && private.loaded) return next();
+		if (modules && privated.loaded) return next();
 		res.status(500).send({success: false, error: "Blockchain is loading"});
 	});
 
@@ -294,8 +294,8 @@ private.attachApi = function () {
 				return res.json({success: false});
 			}
 
-			tmpKepairs = private.keypairs;
-			private.keypairs = {};
+			tmpKepairs = privated.keypairs;
+			privated.keypairs = {};
 			return res.json({success: true});
 		});
 
@@ -304,7 +304,7 @@ private.attachApi = function () {
 				return res.json({success: false});
 			}
 
-			private.keypairs = tmpKepairs;
+			privated.keypairs = tmpKepairs;
 			tmpKepairs = {};
 			return res.json({success: true});
 		});
@@ -345,7 +345,7 @@ private.attachApi = function () {
 				}
 			}
 
-			if (private.keypairs[keypair.publicKey.toString('hex')]) {
+			if (privated.keypairs[keypair.publicKey.toString('hex')]) {
 				return res.json({success: false, error: "Forging is already enabled"});
 			}
 
@@ -354,7 +354,7 @@ private.attachApi = function () {
 					return res.json({success: false, error: err.toString()});
 				}
 				if (account && account.isDelegate) {
-					private.keypairs[keypair.publicKey.toString('hex')] = keypair;
+					privated.keypairs[keypair.publicKey.toString('hex')] = keypair;
 					return res.json({success: true, address: account.address});
 					library.logger.info("Forging enabled on account: " + account.address);
 				} else {
@@ -399,7 +399,7 @@ private.attachApi = function () {
 				}
 			}
 
-			if (!private.keypairs[keypair.publicKey.toString('hex')]) {
+			if (!privated.keypairs[keypair.publicKey.toString('hex')]) {
 				return res.json({success: false, error: "Delegate not found"});
 			}
 
@@ -408,7 +408,7 @@ private.attachApi = function () {
 					return res.json({success: false, error: err.toString()});
 				}
 				if (account && account.isDelegate) {
-					delete private.keypairs[keypair.publicKey.toString('hex')];
+					delete privated.keypairs[keypair.publicKey.toString('hex')];
 					return res.json({success: true, address: account.address});
 					library.logger.info("Forging disabled on account: " + account.address); //fixme
 				} else {
@@ -434,11 +434,11 @@ private.attachApi = function () {
 				return res.json({success: false, error: err[0].message});
 			}
 
-			return res.json({success: true, enabled: !!private.keypairs[query.publicKey]});
+			return res.json({success: true, enabled: !!privated.keypairs[query.publicKey]});
 		});
 	});
 
-	/*router.map(private, {
+	/*router.map(privated, {
 	 "post /forging/enable": "enableForging",
 	 "post /forging/disable": "disableForging",
 	 "get /forging/status": "statusForging"
@@ -452,7 +452,7 @@ private.attachApi = function () {
 	});
 };
 
-private.getKeysSortByVote = function (cb) {
+privated.getKeysSortByVote = function (cb) {
 	modules.accounts.getAccounts({
 		isDelegate: 1,
 		sort: {"vote": -1, "publicKey": 1},
@@ -467,7 +467,7 @@ private.getKeysSortByVote = function (cb) {
 	});
 };
 
-private.getBlockSlotData = function (slot, height, cb) {
+privated.getBlockSlotData = function (slot, height, cb) {
 	self.generateDelegateList(height, function (err, activeDelegates) {
 		if (err) {
 			return cb(err);
@@ -480,8 +480,8 @@ private.getBlockSlotData = function (slot, height, cb) {
 
 			var delegate_id = activeDelegates[delegate_pos];
 
-			if (delegate_id && private.keypairs[delegate_id]) {
-				return cb(null, {time: slots.getSlotTime(currentSlot), keypair: private.keypairs[delegate_id]});
+			if (delegate_id && privated.keypairs[delegate_id]) {
+				return cb(null, {time: slots.getSlotTime(currentSlot), keypair: privated.keypairs[delegate_id]});
 			}
 		}
 		cb(null, null);
@@ -489,13 +489,13 @@ private.getBlockSlotData = function (slot, height, cb) {
 };
 
 //
-private.loop = function (cb) {
-	if (!Object.keys(private.keypairs).length) {
+privated.loop = function (cb) {
+	if (!Object.keys(privated.keypairs).length) {
 		library.logger.debug('Loop', 'exit: no delegates');
 		return setImmediate(cb);
 	}
 
-	if (!private.loaded || modules.loader.syncing() || !modules.round.loaded()) {
+	if (!privated.loaded || modules.loader.syncing() || !modules.round.loaded()) {
 		// library.logger.log('Loop', 'exit: syncing');
 		return setImmediate(cb);
 	}
@@ -508,7 +508,7 @@ private.loop = function (cb) {
 		return setImmediate(cb);
 	}
 
-	private.getBlockSlotData(currentSlot, lastBlock.height + 1, function (err, currentBlockData) {
+	privated.getBlockSlotData(currentSlot, lastBlock.height + 1, function (err, currentBlockData) {
 		if (err || currentBlockData === null) {
 			library.logger.log('Loop', 'skiping slot');
 			return setImmediate(cb);
@@ -533,7 +533,7 @@ private.loop = function (cb) {
 	});
 };
 
-private.loadMyDelegates = function (cb) {
+privated.loadMyDelegates = function (cb) {
 	var secrets = null;
 	if (library.config.forging.secret) {
 		secrets = util.isArray(library.config.forging.secret) ? library.config.forging.secret : [library.config.forging.secret];
@@ -554,7 +554,7 @@ private.loadMyDelegates = function (cb) {
 			}
 
 			if (account.isDelegate) {
-				private.keypairs[keypair.publicKey.toString('hex')] = keypair;
+				privated.keypairs[keypair.publicKey.toString('hex')] = keypair;
 				library.logger.info("Forging enabled on account: " + account.address);
 			} else {
 				library.logger.info("Delegate with this public key not found: " + keypair.publicKey.toString('hex'));
@@ -566,7 +566,7 @@ private.loadMyDelegates = function (cb) {
 
 // Public methods
 Delegates.prototype.generateDelegateList = function (height, cb) {
-	private.getKeysSortByVote(function (err, truncDelegateList) {
+	privated.getKeysSortByVote(function (err, truncDelegateList) {
 		if (err) {
 			return cb(err);
 		}
@@ -733,14 +733,14 @@ Delegates.prototype.onBind = function (scope) {
 };
 
 Delegates.prototype.onBlockchainReady = function () {
-	private.loaded = true;
+	privated.loaded = true;
 
-	private.loadMyDelegates(function nextLoop(err) {
+	privated.loadMyDelegates(function nextLoop(err) {
 		if (err) {
 			library.logger.error("Failed to load delegates", err);
 		}
 
-		private.loop(function () {
+		privated.loop(function () {
 			setTimeout(nextLoop, 1000);
 		});
 
@@ -748,7 +748,7 @@ Delegates.prototype.onBlockchainReady = function () {
 };
 
 Delegates.prototype.cleanup = function (cb) {
-	private.loaded = false;
+	privated.loaded = false;
 	cb();
 };
 
@@ -978,15 +978,15 @@ shared.getForgedByAccount = function (req, cb) {
 	});
 };
 
-private.enableForging = function (req, cb) {
+privated.enableForging = function (req, cb) {
 
 };
 
-private.disableForging = function (req, cb) {
+privated.disableForging = function (req, cb) {
 
 };
 
-private.statusForging = function (req, cb) {
+privated.statusForging = function (req, cb) {
 
 };
 

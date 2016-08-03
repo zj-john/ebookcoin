@@ -11,8 +11,8 @@ var crypto = require('crypto'),
 	extend = require('extend'),
 	sandboxHelper = require('../helpers/sandbox.js');
 
-// Private fields
-var modules, library, self, private = {}, shared = {};
+// privated fields
+var modules, library, self, privated = {}, shared = {};
 
 function Vote() {
 	this.create = function (data, trs) {
@@ -347,8 +347,8 @@ function Username() {
 function Accounts(cb, scope) {
 	library = scope;
 	self = this;
-	self.__private = private;
-	private.attachApi();
+	self.__private = privated;
+	privated.attachApi();
 
 	library.logic.transaction.attachAssetType(TransactionTypes.VOTE, new Vote());
 	library.logic.transaction.attachAssetType(TransactionTypes.USERNAME, new Username());
@@ -356,8 +356,8 @@ function Accounts(cb, scope) {
 	setImmediate(cb, null, self);
 }
 
-// Private methods
-private.attachApi = function () {
+// private methods
+privated.attachApi = function () {
 	var router = new Router();
 
 	router.use(function (req, res, next) {
@@ -381,7 +381,7 @@ private.attachApi = function () {
 
 	if (process.env.DEBUG && process.env.DEBUG.toUpperCase() == "TRUE") {
 		router.get('/getAllAccounts', function (req, res) {
-			return res.json({success: true, accounts: private.accounts});
+			return res.json({success: true, accounts: privated.accounts});
 		});
 	}
 
@@ -429,7 +429,7 @@ private.attachApi = function () {
 	}
 
 	router.get('/count', function (req, res) {
-		return res.json({success: true, count: Object.keys(private.accounts).length});
+		return res.json({success: true, count: Object.keys(privated.accounts).length});
 	});
 
 	router.use(function (req, res, next) {
@@ -444,7 +444,7 @@ private.attachApi = function () {
 	});
 };
 
-private.openAccount = function (secret, cb) {
+privated.openAccount = function (secret, cb) {
 	var hash = crypto.createHash('sha256').update(secret, 'utf8').digest();
 	var keypair = ed.MakeKeypair(hash);
 
@@ -541,7 +541,7 @@ shared.open = function (req, cb) {
 			return cb(err[0].message);
 		}
 
-		private.openAccount(body.secret, function (err, account) {
+		privated.openAccount(body.secret, function (err, account) {
 			var accountData = null;
 			if (!err) {
 				accountData = {
@@ -641,7 +641,7 @@ shared.generatePublickey = function (req, cb) {
 			return cb(err[0].message);
 		}
 
-		private.openAccount(body.secret, function (err, account) {
+		privated.openAccount(body.secret, function (err, account) {
 			var publicKey = null;
 			if (!err && account) {
 				publicKey = account.publicKey;

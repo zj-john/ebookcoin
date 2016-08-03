@@ -10,29 +10,29 @@ var Router = require('../helpers/router.js'),
 	bignum = require('../helpers/bignum.js'),
 	sandboxHelper = require('../helpers/sandbox.js');
 
-// Private fields
-var modules, library, self, private = {}, shared = {};
+// privated fields
+var modules, library, self, privated = {}, shared = {};
 
-private.headers = {};
-private.loaded = false;
-private.messages = {};
+privated.headers = {};
+privated.loaded = false;
+privated.messages = {};
 
 // Constructor
 function Transport(cb, scope) {
 	library = scope;
 	self = this;
-	self.__private = private;
-	private.attachApi();
+	self.__private = privated;
+	privated.attachApi();
 
 	setImmediate(cb, null, self);
 }
 
-// Private methods
-private.attachApi = function () {
+// private methods
+privated.attachApi = function () {
 	var router = new Router();
 
 	router.use(function (req, res, next) {
-		if (modules && private.loaded) return next();
+		if (modules && privated.loaded) return next();
 		res.status(500).send({success: false, error: "Blockchain is loading"});
 	});
 
@@ -100,14 +100,14 @@ private.attachApi = function () {
 	});
 
 	router.get('/list', function (req, res) {
-		res.set(private.headers);
+		res.set(privated.headers);
 		modules.peer.list({limit: 100}, function (err, peers) {
 			return res.status(200).json({peers: !err ? peers : []});
 		});
 	});
 
 	router.get("/blocks/common", function (req, res, next) {
-		res.set(private.headers);
+		res.set(privated.headers);
 
 		req.sanitize(req.query, {
 			type: "object",
@@ -182,7 +182,7 @@ private.attachApi = function () {
 	});
 
 	router.get("/blocks", function (req, res) {
-		res.set(private.headers);
+		res.set(privated.headers);
 
 		req.sanitize(req.query, {
 			type: 'object',
@@ -210,7 +210,7 @@ private.attachApi = function () {
 	});
 
 	router.post("/blocks", function (req, res) {
-		res.set(private.headers);
+		res.set(privated.headers);
 
 		var report = library.scheme.validate(req.headers, {
 			type: "object",
@@ -246,7 +246,7 @@ private.attachApi = function () {
 	});
 
 	router.post('/signatures', function (req, res) {
-		res.set(private.headers);
+		res.set(privated.headers);
 
 		library.scheme.validate(req.body, {
 			type: "object",
@@ -282,7 +282,7 @@ private.attachApi = function () {
 	});
 
 	router.get('/signatures', function (req, res) {
-		res.set(private.headers);
+		res.set(privated.headers);
 
 		var unconfirmedList = modules.transactions.getUnconfirmedTransactionList();
 		var signatures = [];
@@ -302,13 +302,13 @@ private.attachApi = function () {
 	});
 
 	router.get("/transactions", function (req, res) {
-		res.set(private.headers);
+		res.set(privated.headers);
 		// Need to process headers from peer
 		res.status(200).json({transactions: modules.transactions.getUnconfirmedTransactionList()});
 	});
 
 	router.post("/transactions", function (req, res) {
-		res.set(private.headers);
+		res.set(privated.headers);
 
 		var report = library.scheme.validate(req.headers, {
 			type: "object",
@@ -348,14 +348,14 @@ private.attachApi = function () {
 	});
 
 	router.get('/height', function (req, res) {
-		res.set(private.headers);
+		res.set(privated.headers);
 		res.status(200).json({
 			height: modules.blocks.getLastBlock().height
 		});
 	});
 
 	router.post("/dapp/message", function (req, res) {
-		res.set(private.headers);
+		res.set(privated.headers);
 
 		try {
 			if (!req.body.dappid) {
@@ -367,7 +367,7 @@ private.attachApi = function () {
 					message: "missed hash sum"
 				});
 			}
-			var newHash = private.hashsum(req.body.body, req.body.timestamp);
+			var newHash = privated.hashsum(req.body.body, req.body.timestamp);
 			if (newHash !== req.body.hash) {
 				return res.status(200).json({success: false, message: "wrong hash sum"});
 			}
@@ -375,11 +375,11 @@ private.attachApi = function () {
 			return res.status(200).json({success: false, message: e.toString()});
 		}
 
-		if (private.messages[req.body.hash]) {
+		if (privated.messages[req.body.hash]) {
 			return res.status(200);
 		}
 
-		private.messages[req.body.hash] = true;
+		privated.messages[req.body.hash] = true;
 
 		modules.dapps.message(req.body.dappid, req.body.body, function (err, body) {
 			if (!err && body.error) {
@@ -396,7 +396,7 @@ private.attachApi = function () {
 	});
 
 	router.post("/dapp/request", function (req, res) {
-		res.set(private.headers);
+		res.set(privated.headers);
 
 		try {
 			if (!req.body.dappid) {
@@ -408,7 +408,7 @@ private.attachApi = function () {
 					message: "missed hash sum"
 				});
 			}
-			var newHash = private.hashsum(req.body.body, req.body.timestamp);
+			var newHash = privated.hashsum(req.body.body, req.body.timestamp);
 			if (newHash !== req.body.hash) {
 				return res.status(200).json({success: false, message: "wrong hash sum"});
 			}
@@ -442,7 +442,7 @@ private.attachApi = function () {
 	});
 };
 
-private.hashsum = function (obj) {
+privated.hashsum = function (obj) {
 	var buf = new Buffer(JSON.stringify(obj), 'utf8');
 	var hashdig = crypto.createHash('sha256').update(buf).digest();
 	var temp = new Buffer(8);
@@ -499,7 +499,7 @@ Transport.prototype.getFromRandomPeer = function (config, options, cb) {
  * web method
  * @param {function} cb Result Callback
  * @returns {*|exports} Request lib request instance
- * @private
+ * @privated
  * @example
  *
  * // Send gzipped request to peer's web method /peer/blocks.
@@ -519,7 +519,7 @@ Transport.prototype.getFromPeer = function (peer, options, cb) {
 		url: 'http://' + ip.fromLong(peer.ip) + ':' + peer.port + url,
 		method: options.method,
 		json: true,
-		headers: _.extend({}, private.headers, options.headers),
+		headers: _.extend({}, privated.headers, options.headers),
 		timeout: library.config.peers.options.timeout
 	};
 	if (Object.prototype.toString.call(options.data) === "[object Object]" || util.isArray(options.data)) {
@@ -614,7 +614,7 @@ Transport.prototype.sandboxApi = function (call, args, cb) {
 Transport.prototype.onBind = function (scope) {
 	modules = scope;
 
-	private.headers = {
+	privated.headers = {
 		os: modules.system.getOS(),
 		version: modules.system.getVersion(),
 		port: modules.system.getPort(),
@@ -623,7 +623,7 @@ Transport.prototype.onBind = function (scope) {
 }
 
 Transport.prototype.onBlockchainReady = function () {
-	private.loaded = true;
+	privated.loaded = true;
 }
 
 Transport.prototype.onSignature = function (signature, broadcast) {
@@ -654,14 +654,14 @@ Transport.prototype.onMessage = function (msg, broadcast) {
 }
 
 Transport.prototype.cleanup = function (cb) {
-	private.loaded = false;
+	privated.loaded = false;
 	cb();
 }
 
 // Shared
 shared.message = function (msg, cb) {
 	msg.timestamp = (new Date()).getTime();
-	msg.hash = private.hashsum(msg.body, msg.timestamp);
+	msg.hash = privated.hashsum(msg.body, msg.timestamp);
 
 	self.broadcast({limit: 100, dappid: msg.dappid}, {api: '/dapp/message', data: msg, method: "POST"});
 
@@ -670,7 +670,7 @@ shared.message = function (msg, cb) {
 
 shared.request = function (msg, cb) {
 	msg.timestamp = (new Date()).getTime();
-	msg.hash = private.hashsum(msg.body, msg.timestamp);
+	msg.hash = privated.hashsum(msg.body, msg.timestamp);
 
 	if (msg.body.peer) {
 		self.getFromPeer({ip: msg.body.peer.ip, port: msg.body.peer.port}, {

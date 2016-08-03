@@ -1,33 +1,33 @@
-var async = require('async'),
-	util = require('util'),
-	slots = require('../helpers/slots.js'),
-	sandboxHelper = require('../helpers/sandbox.js'),
-	constants = require('../helpers/constants.js');
+var async = require('async');
+var	util = require('util');
+var	slots = require('../helpers/slots.js');
+var	sandboxHelper = require('../helpers/sandbox.js');
+var	constants = require('../helpers/constants.js');
 
-// Private fields
-var modules, library, self, private = {}, shared = {};
+// privated fields
+var modules, library, self, privated = {}, shared = {};
 
-private.loaded = false;
+privated.loaded = false;
 
-private.feesByRound = {};
-private.rewardsByRound = {};
-private.delegatesByRound = {};
-private.unFeesByRound = {};
-private.unRewardsByRound = {};
-private.unDelegatesByRound = {};
+privated.feesByRound = {};
+privated.rewardsByRound = {};
+privated.delegatesByRound = {};
+privated.unFeesByRound = {};
+privated.unRewardsByRound = {};
+privated.unDelegatesByRound = {};
 
 // Constructor
 function Round(cb, scope) {
 	library = scope;
 	self = this;
-	self.__private = private;
+	self.__private = privated;
 	setImmediate(cb, null, self);
 }
 
 // Round changes
 function RoundChanges (round) {
-  var roundFees = parseInt(private.feesByRound[round]) || 0;
-  var roundRewards = (private.rewardsByRound[round] || []);
+  var roundFees = parseInt(privated.feesByRound[round]) || 0;
+  var roundRewards = (privated.rewardsByRound[round] || []);
 
   this.at = function (index) {
     var fees = Math.floor(roundFees / constants.delegates),
@@ -44,7 +44,7 @@ function RoundChanges (round) {
 }
 
 Round.prototype.loaded = function () {
-	return private.loaded;
+	return privated.loaded;
 };
 
 // Public methods
@@ -67,14 +67,14 @@ Round.prototype.flush = function (round, cb) {
 
 Round.prototype.directionSwap = function (direction, lastBlock, cb) {
 	if (direction == 'backward') {
-		private.feesByRound = {};
-		private.rewardsByRound = {};
-		private.delegatesByRound = {};
+		privated.feesByRound = {};
+		privated.rewardsByRound = {};
+		privated.delegatesByRound = {};
 		self.flush(self.calc(lastBlock.height), cb);
 	} else {
-		private.unFeesByRound = {};
-		private.unRewardsByRound = {};
-		private.unDelegatesByRound = {};
+		privated.unFeesByRound = {};
+		privated.unRewardsByRound = {};
+		privated.unDelegatesByRound = {};
 		self.flush(self.calc(lastBlock.height), cb);
 	}
 };
@@ -98,17 +98,17 @@ Round.prototype.backwardTick = function (block, previousBlock, cb) {
 
 		var prevRound = self.calc(previousBlock.height);
 
-		private.unFeesByRound[round] = (private.unFeesByRound[round] || 0);
-		private.unFeesByRound[round] += block.totalFee;
+		privated.unFeesByRound[round] = (privated.unFeesByRound[round] || 0);
+		privated.unFeesByRound[round] += block.totalFee;
 
-		private.unRewardsByRound[round] = (private.rewardsByRound[round] || []);
-		private.unRewardsByRound[round].push(block.reward);
+		privated.unRewardsByRound[round] = (privated.rewardsByRound[round] || []);
+		privated.unRewardsByRound[round].push(block.reward);
 
-		private.unDelegatesByRound[round] = private.unDelegatesByRound[round] || [];
-		private.unDelegatesByRound[round].push(block.generatorPublicKey);
+		privated.unDelegatesByRound[round] = privated.unDelegatesByRound[round] || [];
+		privated.unDelegatesByRound[round].push(block.generatorPublicKey);
 
 		if (prevRound !== round || previousBlock.height == 1) {
-			if (private.unDelegatesByRound[round].length == constants.delegates || previousBlock.height == 1) {
+			if (privated.unDelegatesByRound[round].length == constants.delegates || previousBlock.height == 1) {
 				var outsiders = [];
 				async.series([
 					function (cb) {
@@ -118,7 +118,7 @@ Round.prototype.backwardTick = function (block, previousBlock, cb) {
 									return cb(err);
 								}
 								for (var i = 0; i < roundDelegates.length; i++) {
-									if (private.unDelegatesByRound[round].indexOf(roundDelegates[i]) == -1) {
+									if (privated.unDelegatesByRound[round].indexOf(roundDelegates[i]) == -1) {
 										outsiders.push(modules.accounts.generateAddressByPublicKey(roundDelegates[i]));
 									}
 								}
@@ -159,7 +159,7 @@ Round.prototype.backwardTick = function (block, previousBlock, cb) {
 					function (cb) {
 						var roundChanges = new RoundChanges(round);
 
-						async.forEachOfSeries(private.unDelegatesByRound[round], function (delegate, index, cb) {
+						async.forEachOfSeries(privated.unDelegatesByRound[round], function (delegate, index, cb) {
 							var changes = roundChanges.at(index);
 
 							modules.accounts.mergeAccountAndGet({
@@ -207,9 +207,9 @@ Round.prototype.backwardTick = function (block, previousBlock, cb) {
 						});
 					}
 				], function (err) {
-					delete private.unFeesByRound[round];
-					delete private.unRewardsByRound[round];
-					delete private.unDelegatesByRound[round];
+					delete privated.unFeesByRound[round];
+					delete privated.unRewardsByRound[round];
+					delete privated.unDelegatesByRound[round];
 					done(err)
 				});
 			} else {
@@ -237,19 +237,19 @@ Round.prototype.tick = function (block, cb) {
 		}
 		var round = self.calc(block.height);
 
-		private.feesByRound[round] = (private.feesByRound[round] || 0);
-		private.feesByRound[round] += block.totalFee;
+		privated.feesByRound[round] = (privated.feesByRound[round] || 0);
+		privated.feesByRound[round] += block.totalFee;
 
-		private.rewardsByRound[round] = (private.rewardsByRound[round] || []);
-		private.rewardsByRound[round].push(block.reward);
+		privated.rewardsByRound[round] = (privated.rewardsByRound[round] || []);
+		privated.rewardsByRound[round].push(block.reward);
 
-		private.delegatesByRound[round] = private.delegatesByRound[round] || [];
-		private.delegatesByRound[round].push(block.generatorPublicKey);
+		privated.delegatesByRound[round] = privated.delegatesByRound[round] || [];
+		privated.delegatesByRound[round].push(block.generatorPublicKey);
 
 		var nextRound = self.calc(block.height + 1);
 
 		if (round !== nextRound || block.height == 1) {
-			if (private.delegatesByRound[round].length == constants.delegates || block.height == 1 || block.height == 101) {
+			if (privated.delegatesByRound[round].length == constants.delegates || block.height == 1 || block.height == 101) {
 				var outsiders = [];
 
 				async.series([
@@ -260,7 +260,7 @@ Round.prototype.tick = function (block, cb) {
 									return cb(err);
 								}
 								for (var i = 0; i < roundDelegates.length; i++) {
-									if (private.delegatesByRound[round].indexOf(roundDelegates[i]) == -1) {
+									if (privated.delegatesByRound[round].indexOf(roundDelegates[i]) == -1) {
 										outsiders.push(modules.accounts.generateAddressByPublicKey(roundDelegates[i]));
 									}
 								}
@@ -301,7 +301,7 @@ Round.prototype.tick = function (block, cb) {
 					function (cb) {
 						var roundChanges = new RoundChanges(round);
 
-						async.forEachOfSeries(private.delegatesByRound[round], function (delegate, index, cb) {
+						async.forEachOfSeries(privated.delegatesByRound[round], function (delegate, index, cb) {
 							var changes = roundChanges.at(index);
 
 							modules.accounts.mergeAccountAndGet({
@@ -316,7 +316,7 @@ Round.prototype.tick = function (block, cb) {
 								if (err) {
 									return cb(err);
 								}
-								if (index === private.delegatesByRound[round].length - 1) {
+								if (index === privated.delegatesByRound[round].length - 1) {
 									modules.accounts.mergeAccountAndGet({
 										publicKey: delegate,
 										balance: changes.feesRemaining,
@@ -350,9 +350,9 @@ Round.prototype.tick = function (block, cb) {
 						});
 					}
 				], function (err) {
-					delete private.feesByRound[round];
-					delete private.rewardsByRound[round];
-					delete private.delegatesByRound[round];
+					delete privated.feesByRound[round];
+					delete privated.rewardsByRound[round];
+					delete privated.delegatesByRound[round];
 
 					done(err);
 				});
@@ -385,10 +385,10 @@ Round.prototype.onBlockchainReady = function () {
 			rewards: Array,
 			delegates: Array
 		}, function (err, rows) {
-			private.feesByRound[round] = rows[0].fees;
-			private.rewardsByRound[round] = rows[0].rewards;
-			private.delegatesByRound[round] = rows[0].delegates;
-			private.loaded = true;
+			privated.feesByRound[round] = rows[0].fees;
+			privated.rewardsByRound[round] = rows[0].rewards;
+			privated.delegatesByRound[round] = rows[0].delegates;
+			privated.loaded = true;
 		});
 }
 
@@ -397,7 +397,7 @@ Round.prototype.onFinishRound = function (round) {
 }
 
 Round.prototype.cleanup = function (cb) {
-	private.loaded = false;
+	privated.loaded = false;
 	cb();
 }
 

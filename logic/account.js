@@ -5,7 +5,7 @@ var constants = require('../helpers/constants.js');
 var slots = require('../helpers/slots.js');
 var genesisBlock = null;
 
-var private = {};
+var privated = {};
 
 // Constructor
 function Account(scope, cb) {

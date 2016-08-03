@@ -1,42 +1,42 @@
 var os = require("os"),
 	sandboxHelper = require('../helpers/sandbox.js');
 
-// Private fields
-var modules, library, self, private = {}, shared = {};
+// privated fields
+var modules, library, self, privated = {}, shared = {};
 
-private.version, private.osName, private.port, private.sharePort;
+privated.version, privated.osName, privated.port, privated.sharePort;
 
 // Constructor
 function System(cb, scope) {
 	library = scope;
 	self = this;
-	self.__private = private;
+	self.__private = privated;
 
-	private.version = library.config.version;
-	private.port = library.config.port;
-	private.sharePort = Number(!!library.config.sharePort);
-	private.osName = os.platform() + os.release();
+	privated.version = library.config.version;
+	privated.port = library.config.port;
+	privated.sharePort = Number(!!library.config.sharePort);
+	privated.osName = os.platform() + os.release();
 
 	setImmediate(cb, null, self);
 }
 
-// Private methods
+// private methods
 
 // Public methods
 System.prototype.getOS = function () {
-	return private.osName;
+	return privated.osName;
 }
 
 System.prototype.getVersion = function () {
-	return private.version;
+	return privated.version;
 }
 
 System.prototype.getPort = function () {
-	return private.port;
+	return privated.port;
 }
 
 System.prototype.getSharePort = function () {
-	return private.sharePort;
+	return privated.sharePort;
 }
 
 System.prototype.sandboxApi = function (call, args, cb) {

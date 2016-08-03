@@ -11,13 +11,13 @@ var ed = require('ed25519'),
 	TransactionTypes = require('../helpers/transaction-types.js'),
 	sandboxHelper = require('../helpers/sandbox.js');
 
-// Private fields
-var modules, library, self, private = {}, shared = {};
+// privated fields
+var modules, library, self, privated = {}, shared = {};
 
-private.hiddenTransactions = [];
-private.unconfirmedTransactions = [];
-private.unconfirmedTransactionsIdIndex = {};
-private.doubleSpendingTransactions = {};
+privated.hiddenTransactions = [];
+privated.unconfirmedTransactions = [];
+privated.unconfirmedTransactionsIdIndex = {};
+privated.doubleSpendingTransactions = {};
 
 function Transfer() {
 	this.create = function (data, trs) {
@@ -128,16 +128,16 @@ function Transactions(cb, scope) {
 	library = scope;
 	genesisblock = library.genesisblock;
 	self = this;
-	self.__private = private;
-	private.attachApi();
+	self.__private = privated;
+	privated.attachApi();
 
 	library.logic.transaction.attachAssetType(TransactionTypes.SEND, new Transfer());
 
 	setImmediate(cb, null, self);
 }
 
-// Private methods
-private.attachApi = function () {
+// private methods
+privated.attachApi = function () {
 	var router = new Router();
 
 	router.use(function (req, res, next) {
@@ -165,7 +165,7 @@ private.attachApi = function () {
 	});
 }
 
-private.list = function (filter, cb) {
+privated.list = function (filter, cb) {
 	var sortFields = ['t.id', 't.blockId', 't.amount', 't.fee', 't.type', 't.timestamp', 't.senderPublicKey', 't.senderId', 't.recipientId', 't.senderUsername', 't.recipientUsername', 't.confirmations', 'b.height'];
 	var params = {}, fields_or = [], owner = "";
 	if (filter.blockId) {
@@ -266,7 +266,7 @@ private.list = function (filter, cb) {
 	});
 }
 
-private.getById = function (id, cb) {
+privated.getById = function (id, cb) {
 	library.dbLite.query("select t.id, b.height, t.blockId, t.type, t.timestamp, lower(hex(t.senderPublicKey)), t.senderId, t.recipientId, t.senderUsername, t.recipientUsername, t.amount, t.fee, lower(hex(t.signature)), lower(hex(t.signSignature)), (select max(height) + 1 from blocks) - b.height " +
 		"from trs t " +
 		"inner join blocks b on t.blockId = b.id " +
@@ -280,16 +280,16 @@ private.getById = function (id, cb) {
 	});
 }
 
-private.addUnconfirmedTransaction = function (transaction, sender, cb) {
+privated.addUnconfirmedTransaction = function (transaction, sender, cb) {
 	self.applyUnconfirmed(transaction, sender, function (err) {
 		if (err) {
 			self.addDoubleSpending(transaction);
 			return setImmediate(cb, err);
 		}
 
-		private.unconfirmedTransactions.push(transaction);
-		var index = private.unconfirmedTransactions.length - 1;
-		private.unconfirmedTransactionsIdIndex[transaction.id] = index;
+		privated.unconfirmedTransactions.push(transaction);
+		var index = privated.unconfirmedTransactions.length - 1;
+		privated.unconfirmedTransactionsIdIndex[transaction.id] = index;
 
 		setImmediate(cb);
 	});
@@ -297,31 +297,31 @@ private.addUnconfirmedTransaction = function (transaction, sender, cb) {
 
 // Public methods
 Transactions.prototype.getUnconfirmedTransaction = function (id) {
-	var index = private.unconfirmedTransactionsIdIndex[id];
-	return private.unconfirmedTransactions[index];
+	var index = privated.unconfirmedTransactionsIdIndex[id];
+	return privated.unconfirmedTransactions[index];
 }
 
 Transactions.prototype.addDoubleSpending = function (transaction) {
-	private.doubleSpendingTransactions[transaction.id] = transaction;
+	privated.doubleSpendingTransactions[transaction.id] = transaction;
 }
 
 Transactions.prototype.pushHiddenTransaction = function (transaction) {
-	private.hiddenTransactions.push(transaction);
+	privated.hiddenTransactions.push(transaction);
 }
 
 Transactions.prototype.shiftHiddenTransaction = function () {
-	return private.hiddenTransactions.shift();
+	return privated.hiddenTransactions.shift();
 }
 
 Transactions.prototype.deleteHiddenTransaction = function () {
-	private.hiddenTransactions = [];
+	privated.hiddenTransactions = [];
 }
 
 Transactions.prototype.getUnconfirmedTransactionList = function (reverse) {
 	var a = [];
-	for (var i = 0; i < private.unconfirmedTransactions.length; i++) {
-		if (private.unconfirmedTransactions[i] !== false) {
-			a.push(private.unconfirmedTransactions[i]);
+	for (var i = 0; i < privated.unconfirmedTransactions.length; i++) {
+		if (privated.unconfirmedTransactions[i] !== false) {
+			a.push(privated.unconfirmedTransactions[i]);
 		}
 	}
 
@@ -329,9 +329,9 @@ Transactions.prototype.getUnconfirmedTransactionList = function (reverse) {
 }
 
 Transactions.prototype.removeUnconfirmedTransaction = function (id) {
-	var index = private.unconfirmedTransactionsIdIndex[id];
-	delete private.unconfirmedTransactionsIdIndex[id];
-	private.unconfirmedTransactions[index] = false;
+	var index = privated.unconfirmedTransactionsIdIndex[id];
+	delete privated.unconfirmedTransactionsIdIndex[id];
+	privated.unconfirmedTransactions[index] = false;
 }
 
 Transactions.prototype.processUnconfirmedTransaction = function (transaction, broadcast, cb) {
@@ -341,7 +341,7 @@ Transactions.prototype.processUnconfirmedTransaction = function (transaction, br
 				return cb(err);
 			}
 
-			private.addUnconfirmedTransaction(transaction, sender, function (err) {
+			privated.addUnconfirmedTransaction(transaction, sender, function (err) {
 				if (err) {
 					return cb(err);
 				}
@@ -372,7 +372,7 @@ Transactions.prototype.processUnconfirmedTransaction = function (transaction, br
 					}
 
 					// Check in confirmed transactions
-					if (private.unconfirmedTransactionsIdIndex[transaction.id] !== undefined || private.doubleSpendingTransactions[transaction.id]) {
+					if (privated.unconfirmedTransactionsIdIndex[transaction.id] !== undefined || privated.doubleSpendingTransactions[transaction.id]) {
 						return cb("Transaction already exists");
 					}
 
@@ -386,7 +386,7 @@ Transactions.prototype.processUnconfirmedTransaction = function (transaction, br
 				}
 
 				// Check in confirmed transactions
-				if (private.unconfirmedTransactionsIdIndex[transaction.id] !== undefined || private.doubleSpendingTransactions[transaction.id]) {
+				if (privated.unconfirmedTransactionsIdIndex[transaction.id] !== undefined || privated.doubleSpendingTransactions[transaction.id]) {
 					return cb("Transaction already exists");
 				}
 
@@ -418,7 +418,7 @@ Transactions.prototype.applyUnconfirmedList = function (ids, cb) {
 
 Transactions.prototype.undoUnconfirmedList = function (cb) {
 	var ids = [];
-	async.eachSeries(private.unconfirmedTransactions, function (transaction, cb) {
+	async.eachSeries(privated.unconfirmedTransactions, function (transaction, cb) {
 		if (transaction !== false) {
 			ids.push(transaction.id);
 			self.undoUnconfirmed(transaction, cb);
@@ -551,7 +551,7 @@ shared.getTransactions = function (req, cb) {
 			return cb(err[0].message);
 		}
 
-		private.list(query, function (err, data) {
+		privated.list(query, function (err, data) {
 			if (err) {
 				return cb("Failed to get transactions");
 			}
@@ -577,7 +577,7 @@ shared.getTransaction = function (req, cb) {
 			return cb(err[0].message);
 		}
 
-		private.getById(query.id, function (err, transaction) {
+		privated.getById(query.id, function (err, transaction) {
 			if (!transaction || err) {
 				return cb("Transaction not found");
 			}

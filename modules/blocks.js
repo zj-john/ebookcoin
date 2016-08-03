@@ -15,13 +15,13 @@ var	sandboxHelper = require('../helpers/sandbox.js');
 
 require('array.prototype.findindex'); // Old node fix
 
-// Private fields
-var modules, library, self, private = {}, shared = {};
+// privated fields
+var modules, library, self, privated = {}, shared = {};
 
-private.lastBlock = {};
-private.blockStatus = new blockStatus();
+privated.lastBlock = {};
+privated.blockStatus = new blockStatus();
 // @formatter:off
-private.blocksDataFields = {
+privated.blocksDataFields = {
 	'b_id': String,
 	'b_version': String,
 	'b_timestamp': Number,
@@ -71,24 +71,24 @@ private.blocksDataFields = {
 	't_signatures': String
 };
 // @formatter:on
-private.loaded = false;
-private.isActive = false;
+privated.loaded = false;
+privated.isActive = false;
 
 // Constructor
 function Blocks(cb, scope) {
 	library = scope;
 	genesisblock = library.genesisblock;
 	self = this;
-	self.__private = private;
-	private.attachApi();
+	self.__private = privated;
+	privated.attachApi();
 
-	private.saveGenesisBlock(function (err) {
+	privated.saveGenesisBlock(function (err) {
 		setImmediate(cb, err, self);
 	});
 }
 
-// Private methods
-private.attachApi = function () {
+// private methods
+privated.attachApi = function () {
 	var router = new Router();
 
 	router.use(function (req, res, next) {
@@ -119,7 +119,7 @@ private.attachApi = function () {
 	});
 };
 
-private.saveGenesisBlock = function (cb) {
+privated.saveGenesisBlock = function (cb) {
 	library.dbLite.query("SELECT id FROM blocks WHERE id=$id", {id: genesisblock.block.id}, ['id'], function (err, rows) {
 		if (err) {
 			return cb(err);
@@ -127,7 +127,7 @@ private.saveGenesisBlock = function (cb) {
 		var blockId = rows.length && rows[0].id;
 
 		if (!blockId) {
-			private.saveBlock(genesisblock.block, function (err) {
+			privated.saveBlock(genesisblock.block, function (err) {
 				if (err) {
 					library.logger.error('saveBlock', err);
 				}
@@ -140,13 +140,13 @@ private.saveGenesisBlock = function (cb) {
 	});
 };
 
-private.deleteBlock = function (blockId, cb) {
+privated.deleteBlock = function (blockId, cb) {
 	library.dbLite.query("DELETE FROM blocks WHERE id = $id", {id: blockId}, function (err, res) {
 		cb(err, res);
 	});
 };
 
-private.list = function (filter, cb) {
+privated.list = function (filter, cb) {
 	var sortFields = ['b.id', 'b.timestamp', 'b.height', 'b.previousBlock', 'b.totalAmount', 'b.totalFee', 'b.reward', 'b.numberOfTransactions', 'b.generatorPublicKey'];
 	var params = {}, fields = [], sortMethod = '', sortBy = '';
 	if (filter.generatorPublicKey) {
@@ -250,7 +250,7 @@ private.list = function (filter, cb) {
 	});
 };
 
-private.getById = function (id, cb) {
+privated.getById = function (id, cb) {
 	library.dbLite.query("select b.id, b.version, b.timestamp, b.height, b.previousBlock, b.numberOfTransactions, b.totalAmount, b.totalFee, b.reward, b.payloadLength,  lower(hex(b.payloadHash)), lower(hex(b.generatorPublicKey)), lower(hex(b.blockSignature)), (select max(height) + 1 from blocks) - b.height " +
 		"from blocks b " +
 		"where b.id = $id", {id: id}, ['b_id', 'b_version', 'b_timestamp', 'b_height', 'b_previousBlock', 'b_numberOfTransactions', 'b_totalAmount', 'b_totalFee', 'b_reward', 'b_payloadLength', 'b_payloadHash', 'b_generatorPublicKey', 'b_blockSignature', 'b_confirmations'], function (err, rows) {
@@ -263,7 +263,7 @@ private.getById = function (id, cb) {
 	});
 };
 
-private.saveBlock = function (block, cb) {
+privated.saveBlock = function (block, cb) {
 	library.dbLite.query('BEGIN TRANSACTION;');
 
 	library.logic.block.dbSave(block, function (err) {
@@ -290,7 +290,7 @@ private.saveBlock = function (block, cb) {
 	});
 };
 
-private.popLastBlock = function (oldLastBlock, cb) {
+privated.popLastBlock = function (oldLastBlock, cb) {
 	library.balancesSequence.add(function (cb) {
 		self.loadBlocksPart({id: oldLastBlock.previousBlock}, function (err, previousBlock) {
 			if (err || !previousBlock.length) {
@@ -316,7 +316,7 @@ private.popLastBlock = function (oldLastBlock, cb) {
 				], cb);
 			}, function (err) {
 				modules.round.backwardTick(oldLastBlock, previousBlock, function () {
-					private.deleteBlock(oldLastBlock.id, function (err) {
+					privated.deleteBlock(oldLastBlock.id, function (err) {
 						if (err) {
 							return cb(err);
 						}
@@ -329,7 +329,7 @@ private.popLastBlock = function (oldLastBlock, cb) {
 	}, cb);
 };
 
-private.getIdSequence = function (height, cb) {
+privated.getIdSequence = function (height, cb) {
 	library.dbLite.query("SELECT s.height, group_concat(s.id) from ( " +
 		'SELECT id, max(height) as height ' +
 		'FROM blocks ' +
@@ -353,7 +353,7 @@ private.getIdSequence = function (height, cb) {
 	})
 };
 
-private.readDbRows = function (rows) {
+privated.readDbRows = function (rows) {
 	var blocks = {};
 	var order = [];
 	for (var i = 0, length = rows.length; i < length; i++) {
@@ -388,7 +388,7 @@ private.readDbRows = function (rows) {
 	return blocks;
 };
 
-private.applyTransaction = function (block, transaction, sender, cb) {
+privated.applyTransaction = function (block, transaction, sender, cb) {
 	modules.transactions.applyUnconfirmed(transaction, sender, function (err) {
 		if (err) {
 			return setImmediate(cb, {
@@ -423,7 +423,7 @@ Blocks.prototype.getCommonBlock = function (peer, height, cb) {
 		},
 		function (next) {
 			count++;
-			private.getIdSequence(lastBlockHeight, function (err, data) {
+			privated.getIdSequence(lastBlockHeight, function (err, data) {
 				if (err) {
 					return next(err);
 				}
@@ -494,7 +494,7 @@ Blocks.prototype.loadBlocksData = function (filter, options, cb) {
 	filter.lastId && (params.lastId = filter.lastId);
 	filter.id && !filter.lastId && (params.id = filter.id);
 
-	var fields = private.blocksDataFields;
+	var fields = privated.blocksDataFields;
 	var method;
 
 	if (options.plain) {
@@ -572,7 +572,7 @@ Blocks.prototype.loadBlocksPart = function (filter, cb) {
 		var blocks = [];
 
 		if (!err) {
-			blocks = private.readDbRows(rows);
+			blocks = privated.readDbRows(rows);
 		}
 
 		cb(err, blocks);
@@ -610,21 +610,21 @@ Blocks.prototype.loadBlocksOffset = function (limit, offset, verify, cb) {
 			"left outer join outtransfer ot on ot.transactionId=t.id " +
 			"where b.height >= $offset and b.height < $limit " +
 			"ORDER BY b.height, t.rowid" +
-			"", params, private.blocksDataFields, function (err, rows) {
+			"", params, privated.blocksDataFields, function (err, rows) {
 			// Notes:
 			// If while loading we encounter an error, for example, an invalid signature on a block & transaction, then we need to stop loading and remove all blocks after the last good block. We also need to process all transactions within the block.
 			if (err) {
 				return cb(err);
 			}
 
-			var blocks = private.readDbRows(rows);
+			var blocks = privated.readDbRows(rows);
 
 			async.eachSeries(blocks, function (block, cb) {
 				async.series([
 					function (cb) {
 						if (block.id != genesisblock.block.id) {
 							if (verify) {
-								if (block.previousBlock != private.lastBlock.id) {
+								if (block.previousBlock != privated.lastBlock.id) {
 									return cb({
 										message: "Can't verify previous block",
 										block: block
@@ -695,10 +695,10 @@ Blocks.prototype.loadBlocksOffset = function (limit, offset, verify, cb) {
 													block: block
 												});
 											}
-											private.applyTransaction(block, transaction, sender, cb);
+											privated.applyTransaction(block, transaction, sender, cb);
 										});
 									} else {
-										private.applyTransaction(block, transaction, sender, cb);
+										privated.applyTransaction(block, transaction, sender, cb);
 									}
 								});
 							} else {
@@ -726,15 +726,15 @@ Blocks.prototype.loadBlocksOffset = function (limit, offset, verify, cb) {
 									], cb);
 								}, cb);
 							} else {
-								private.lastBlock = block;
+								privated.lastBlock = block;
 
-								modules.round.tick(private.lastBlock, cb);
+								modules.round.tick(privated.lastBlock, cb);
 							}
 						});
 					}
 				], cb);
 			}, function (err) {
-				cb(err, private.lastBlock);
+				cb(err, privated.lastBlock);
 			});
 		});
 	}, cb);
@@ -768,12 +768,12 @@ Blocks.prototype.loadLastBlock = function (cb) {
 			"left outer join outtransfer ot on ot.transactionId=t.id " +
 			"where b.height = (select max(height) from blocks) " +
 			"ORDER BY b.height, t.rowid" +
-			"", {}, private.blocksDataFields, function (err, rows) {
+			"", {}, privated.blocksDataFields, function (err, rows) {
 			if (err) {
 				return cb(err);
 			}
 
-			var block = private.readDbRows(rows)[0];
+			var block = privated.readDbRows(rows)[0];
 
 			block.transactions = block.transactions.sort(function (a, b) {
 				if (block.id == genesisblock.block.id) {
@@ -794,32 +794,32 @@ Blocks.prototype.loadLastBlock = function (cb) {
 };
 
 Blocks.prototype.getLastBlock = function () {
-	return private.lastBlock;
+	return privated.lastBlock;
 };
 
 Blocks.prototype.processBlock = function (block, broadcast, cb) {
-	if (!private.loaded) {
+	if (!privated.loaded) {
 		return setImmediate(cb, "Blockchain is loading");
 	}
-	private.isActive = true;
+	privated.isActive = true;
 	library.balancesSequence.add(function (cb) {
 		try {
 			block.id = library.logic.block.getId(block);
 		} catch (e) {
-			private.isActive = false;
+			privated.isActive = false;
 			return setImmediate(cb, e.toString());
 		}
-		block.height = private.lastBlock.height + 1;
+		block.height = privated.lastBlock.height + 1;
 
 		modules.transactions.undoUnconfirmedList(function (err, unconfirmedTransactions) {
 			if (err) {
-				private.isActive = false;
+				privated.isActive = false;
 				return process.exit(0);
 			}
 
 			function done(err) {
 				modules.transactions.applyUnconfirmedList(unconfirmedTransactions, function () {
-					private.isActive = false;
+					privated.isActive = false;
 					setImmediate(cb, err);
 				});
 			}
@@ -828,7 +828,7 @@ Blocks.prototype.processBlock = function (block, broadcast, cb) {
 				return setImmediate(done, "Invalid previous block");
 			}
 
-			var expectedReward = private.blockStatus.calcReward(block.height);
+			var expectedReward = privated.blockStatus.calcReward(block.height);
 
 			if (block.height != 1 && expectedReward !== block.reward) {
 				return setImmediate(done, "Invalid block reward");
@@ -854,7 +854,7 @@ Blocks.prototype.processBlock = function (block, broadcast, cb) {
 					return done("Can't verify signature: " + block.id);
 				}
 
-				if (block.previousBlock != private.lastBlock.id) {
+				if (block.previousBlock != privated.lastBlock.id) {
 					// Fork same height and different previous block
 					modules.delegates.fork(block, 1);
 					return done("Can't verify previous block: " + block.id);
@@ -865,7 +865,7 @@ Blocks.prototype.processBlock = function (block, broadcast, cb) {
 				}
 
 				var blockSlotNumber = slots.getSlotNumber(block.timestamp);
-				var lastBlockSlotNumber = slots.getSlotNumber(private.lastBlock.timestamp);
+				var lastBlockSlotNumber = slots.getSlotNumber(privated.lastBlock.timestamp);
 
 				if (blockSlotNumber > slots.getSlotNumber() || blockSlotNumber <= lastBlockSlotNumber) {
 					return done("Can't verify block timestamp: " + block.id);
@@ -1006,7 +1006,7 @@ Blocks.prototype.processBlock = function (block, broadcast, cb) {
 									});
 								});
 							}, function (err) {
-								private.saveBlock(block, function (err) {
+								privated.saveBlock(block, function (err) {
 									if (err) {
 										library.logger.error("Failed to save block...");
 										library.logger.error(err);
@@ -1014,7 +1014,7 @@ Blocks.prototype.processBlock = function (block, broadcast, cb) {
 									}
 
 									library.bus.message('newBlock', block, broadcast);
-									private.lastBlock = block;
+									privated.lastBlock = block;
 
 									modules.round.tick(block, done);
 									// setImmediate(done);
@@ -1065,8 +1065,8 @@ Blocks.prototype.loadBlocksFromPeer = function (peer, lastCommonBlockId, cb) {
 					return next("Error, can't parse blocks...");
 				}
 
-				blocks = blocks.map(library.dbLite.row2parsed, library.dbLite.parseFields(private.blocksDataFields));
-				blocks = private.readDbRows(blocks);
+				blocks = blocks.map(library.dbLite.row2parsed, library.dbLite.parseFields(privated.blocksDataFields));
+				blocks = privated.readDbRows(blocks);
 
 				if (blocks.length === 0) {
 					loaded = true;
@@ -1108,12 +1108,12 @@ Blocks.prototype.deleteBlocksBefore = function (block, cb) {
 
 	async.whilst(
 		function () {
-			return !(block.height >= private.lastBlock.height);
+			return !(block.height >= privated.lastBlock.height);
 		},
 		function (next) {
-			blocks.unshift(private.lastBlock);
-			private.popLastBlock(private.lastBlock, function (err, newLastBlock) {
-				private.lastBlock = newLastBlock;
+			blocks.unshift(privated.lastBlock);
+			privated.popLastBlock(privated.lastBlock, function (err, newLastBlock) {
+				privated.lastBlock = newLastBlock;
 				next(err);
 			});
 		},
@@ -1147,7 +1147,7 @@ Blocks.prototype.generateBlock = function (keypair, timestamp, cb) {
 			var block = library.logic.block.create({
 				keypair: keypair,
 				timestamp: timestamp,
-				previousBlock: private.lastBlock,
+				previousBlock: privated.lastBlock,
 				transactions: ready
 			});
 		} catch (e) {
@@ -1164,19 +1164,19 @@ Blocks.prototype.sandboxApi = function (call, args, cb) {
 
 // Events
 Blocks.prototype.onReceiveBlock = function (block) {
-	if (modules.loader.syncing() || !private.loaded) {
+	if (modules.loader.syncing() || !privated.loaded) {
 		return;
 	}
 
 	library.sequence.add(function (cb) {
-		if (block.previousBlock == private.lastBlock.id && private.lastBlock.height + 1 == block.height) {
+		if (block.previousBlock == privated.lastBlock.id && privated.lastBlock.height + 1 == block.height) {
 			library.logger.log('Recieved new block id: ' + block.id + ' height: ' + block.height + ' slot: ' + slots.getSlotNumber(block.timestamp) + ' reward: ' + modules.blocks.getLastBlock().reward);
 			self.processBlock(block, true, cb);
-		} else if (block.previousBlock != private.lastBlock.id && private.lastBlock.height + 1 == block.height) {
+		} else if (block.previousBlock != privated.lastBlock.id && privated.lastBlock.height + 1 == block.height) {
 			// Fork right height and different previous block
 			modules.delegates.fork(block, 1);
 			cb("Fork");
-		} else if (block.previousBlock == private.lastBlock.previousBlock && block.height == private.lastBlock.height && block.id != private.lastBlock.id) {
+		} else if (block.previousBlock == privated.lastBlock.previousBlock && block.height == privated.lastBlock.height && block.id != privated.lastBlock.id) {
 			// Fork same height and same previous block, but different block id
 			modules.delegates.fork(block, 4);
 			cb("Fork");
@@ -1189,16 +1189,16 @@ Blocks.prototype.onReceiveBlock = function (block) {
 Blocks.prototype.onBind = function (scope) {
 	modules = scope;
 
-	private.loaded = true;
+	privated.loaded = true;
 };
 
 Blocks.prototype.cleanup = function (cb) {
-	private.loaded = false;
-	if (!private.isActive) {
+	privated.loaded = false;
+	if (!privated.isActive) {
 		cb();
 	} else {
 		setImmediate(function nextWatch() {
-			if (private.isActive) {
+			if (privated.isActive) {
 				setTimeout(nextWatch, 1 * 1000);
 			} else {
 				cb();
@@ -1209,7 +1209,7 @@ Blocks.prototype.cleanup = function (cb) {
 
 // Shared
 shared.getBlock = function (req, cb) {
-	if (!private.loaded) {
+	if (!privated.loaded) {
 		cb("Blockchain is loading");
 	}
 	var query = req.body;
@@ -1228,7 +1228,7 @@ shared.getBlock = function (req, cb) {
 		}
 
 		library.dbSequence.add(function (cb) {
-			private.getById(query.id, function (err, block) {
+			privated.getById(query.id, function (err, block) {
 				if (!block || err) {
 					return cb("Block not found");
 				}
@@ -1239,7 +1239,7 @@ shared.getBlock = function (req, cb) {
 };
 
 shared.getBlocks = function (req, cb) {
-	if (!private.loaded) {
+	if (!privated.loaded) {
 		cb("Blockchain is loading");
 	}
 	var query = req.body;
@@ -1289,7 +1289,7 @@ shared.getBlocks = function (req, cb) {
 		}
 
 		library.dbSequence.add(function (cb) {
-			private.list(query, function (err, data) {
+			privated.list(query, function (err, data) {
 				if (err) {
 					return cb("Database error");
 				}
@@ -1300,15 +1300,15 @@ shared.getBlocks = function (req, cb) {
 };
 
 shared.getHeight = function (req, cb) {
-	if (!private.loaded) {
+	if (!privated.loaded) {
 		cb("Blockchain is loading");
 	}
 	var query = req.body;
-	cb(null, {height: private.lastBlock.height});
+	cb(null, {height: privated.lastBlock.height});
 };
 
 shared.getFee = function (req, cb) {
-	if (!private.loaded) {
+	if (!privated.loaded) {
 		cb("Blockchain is loading");
 	}
 	var query = req.body;
@@ -1316,40 +1316,40 @@ shared.getFee = function (req, cb) {
 };
 
 shared.getMilestone = function (req, cb) {
-	if (!private.loaded) {
+	if (!privated.loaded) {
 		cb("Blockchain is loading");
 	}
-	var query = req.body, height = private.lastBlock.height;
-	cb(null, {milestone: private.blockStatus.calcMilestone(height)});
+	var query = req.body, height = privated.lastBlock.height;
+	cb(null, {milestone: privated.blockStatus.calcMilestone(height)});
 };
 
 shared.getReward = function (req, cb) {
-	if (!private.loaded) {
+	if (!privated.loaded) {
 		cb("Blockchain is loading");
 	}
-	var query = req.body, height = private.lastBlock.height;
-	cb(null, {reward: private.blockStatus.calcReward(height)});
+	var query = req.body, height = privated.lastBlock.height;
+	cb(null, {reward: privated.blockStatus.calcReward(height)});
 };
 
 shared.getSupply = function (req, cb) {
-	if (!private.loaded) {
+	if (!privated.loaded) {
 		cb("Blockchain is loading");
 	}
-	var query = req.body, height = private.lastBlock.height;
-	cb(null, {supply: private.blockStatus.calcSupply(height)});
+	var query = req.body, height = privated.lastBlock.height;
+	cb(null, {supply: privated.blockStatus.calcSupply(height)});
 };
 
 shared.getStatus = function (req, cb) {
-	if (!private.loaded) {
+	if (!privated.loaded) {
 		cb("Blockchain is loading");
 	}
-	var query = req.body, height = private.lastBlock.height;
+	var query = req.body, height = privated.lastBlock.height;
 	cb(null, {
 		height:    height,
 		fee:       library.logic.block.calculateFee(),
-		milestone: private.blockStatus.calcMilestone(height),
-		reward:    private.blockStatus.calcReward(height),
-		supply:    private.blockStatus.calcSupply(height)
+		milestone: privated.blockStatus.calcMilestone(height),
+		reward:    privated.blockStatus.calcReward(height),
+		supply:    privated.blockStatus.calcSupply(height)
 	});
 };
 

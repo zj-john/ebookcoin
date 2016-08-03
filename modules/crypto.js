@@ -6,15 +6,15 @@ var util = require('util'),
 	// encryptHelper = require('../helpers/encrypt.js'),
 	sandboxHelper = require('../helpers/sandbox.js');
 
-var modules, library, self, private = {}, shared = {};
+var modules, library, self, privated = {}, shared = {};
 
-private.loaded = false;
+privated.loaded = false;
 
 // Constructor
 function Crypto(cb, scope) {
 	library = scope;
 	self = this;
-	self.__private = private;
+	self.__private = privated;
 
 	setImmediate(cb, null, self);
 }
@@ -30,7 +30,7 @@ Crypto.prototype.onBind = function (scope) {
 }
 
 Crypto.prototype.onBlockchainReady = function () {
-	private.loaded = true;
+	privated.loaded = true;
 }
 
 // Shared

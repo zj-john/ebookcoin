@@ -446,7 +446,7 @@ BigNumber['config'] = function () {
 };
 
 
-// PRIVATE FUNCTIONS
+// privated FUNCTIONS
 
 
 // Assemble error messages. Throw BigNumber Errors.
