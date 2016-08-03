@@ -4,7 +4,7 @@ var util = require('util'),
 	Router = require('../helpers/router.js'),
 	sandboxHelper = require('../helpers/sandbox.js');
 
-// privated fields
+// private fields
 var modules, library, self, privated = {}, shared = {};
 
 privated.loaded = false;

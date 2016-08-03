@@ -9,7 +9,7 @@ var async = require('async'),
 
 require('array.prototype.find'); // Old node fix
 
-// privated fields
+// private fields
 var modules, library, self, privated = {}, shared = {};
 
 // Constructor

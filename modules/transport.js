@@ -10,7 +10,7 @@ var Router = require('../helpers/router.js'),
 	bignum = require('../helpers/bignum.js'),
 	sandboxHelper = require('../helpers/sandbox.js');
 
-// privated fields
+// private fields
 var modules, library, self, privated = {}, shared = {};
 
 privated.headers = {};

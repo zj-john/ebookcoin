@@ -990,6 +990,30 @@ privated.statusForging = function (req, cb) {
 
 };
 
+/**
+ * @apiGroup Delegate
+ * @apiName addDelegate
+ *
+ * @api {PUT} /api/delegates
+ * @apiVersion 0.1.3
+ *
+ * @apiParam {String} secret Secret key of account.
+ * @apiSuccess {Object} transaction A transaction object.
+ *
+ * @apiParamExample {json} Request(Example)
+ *
+ * {
+ *     "secret" : "Secret key of account",
+ *     "secondSecret": "Second secret of account",
+ *     "username" : "Username of delegate. String from 1 to 20 characters."
+ * }
+ *
+ * @apiSuccessExample {json} Response(Example)
+ * {
+ *     "success": true,
+ *     "transaction": "transaction object"
+ * }
+ */
 shared.addDelegate = function (req, cb) {
 	var body = req.body;
 	library.scheme.validate(body, {

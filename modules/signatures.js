@@ -9,7 +9,7 @@ var ed = require('ed25519'),
 	MilestoneBlocks = require("../helpers/milestoneBlocks.js"),
 	sandboxHelper = require('../helpers/sandbox.js');
 
-// privated fields
+// private fields
 var modules, library, self, privated = {}, shared = {};
 
 function Signature() {

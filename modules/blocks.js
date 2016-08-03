@@ -15,7 +15,7 @@ var	sandboxHelper = require('../helpers/sandbox.js');
 
 require('array.prototype.findindex'); // Old node fix
 
-// privated fields
+// private fields
 var modules, library, self, privated = {}, shared = {};
 
 privated.lastBlock = {};

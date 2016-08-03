@@ -4,7 +4,7 @@ var	slots = require('../helpers/slots.js');
 var	sandboxHelper = require('../helpers/sandbox.js');
 var	constants = require('../helpers/constants.js');
 
-// privated fields
+// private fields
 var modules, library, self, privated = {}, shared = {};
 
 privated.loaded = false;

@@ -13,7 +13,7 @@ var ed = require('ed25519'),
 	Diff = require('../helpers/diff.js'),
 	sandboxHelper = require('../helpers/sandbox.js');
 
-// privated fields
+// private fields
 var modules, library, self, privated = {}, shared = {};
 privated.unconfirmedSignatures = {};
 

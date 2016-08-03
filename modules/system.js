@@ -1,7 +1,7 @@
 var os = require("os"),
 	sandboxHelper = require('../helpers/sandbox.js');
 
-// privated fields
+// private fields
 var modules, library, self, privated = {}, shared = {};
 
 privated.version, privated.osName, privated.port, privated.sharePort;

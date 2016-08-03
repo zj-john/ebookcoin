@@ -4,7 +4,7 @@ jsonSql.setDialect("sqlite")
 var extend = require('extend');
 var sandboxHelper = require('../helpers/sandbox.js')
 
-// privated fields
+// private fields
 var modules, library, self, privated = {}, shared = {};
 
 privated.loaded = false;

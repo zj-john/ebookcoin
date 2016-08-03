@@ -7,7 +7,7 @@ var sandboxHelper = require('../helpers/sandbox.js');
 
 require('colors');
 
-// privated fields
+// private fields
 var modules, library, self, privated = {}, shared = {};
 
 privated.loaded = false;
