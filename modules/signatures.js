@@ -6,7 +6,6 @@ var ed = require('ed25519'),
 	Router = require('../helpers/router.js'),
 	async = require('async'),
 	TransactionTypes = require('../helpers/transaction-types.js'),
-	MilestoneBlocks = require("../helpers/milestoneBlocks.js"),
 	sandboxHelper = require('../helpers/sandbox.js');
 
 // private fields

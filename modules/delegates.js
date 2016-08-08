@@ -9,7 +9,6 @@ var	schedule = require('node-schedule');
 var	util = require('util');
 var	constants = require('../helpers/constants.js');
 var	TransactionTypes = require('../helpers/transaction-types.js');
-var	MilestoneBlocks = require("../helpers/milestoneBlocks.js");
 var	sandboxHelper = require('../helpers/sandbox.js');
 
 require('array.prototype.find'); // Old node fix
