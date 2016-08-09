@@ -709,7 +709,7 @@ Transaction.prototype.objectNormalize = function (trs) {
 Transaction.prototype.dbRead = function (raw) {
 	if (!raw.t_id) {
 		return null
-	} else {
+	} else {		
 		var tx = {
 			id: raw.t_id,
 			height: raw.b_height,

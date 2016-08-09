@@ -1,6 +1,6 @@
 var constants = require('./constants.js');
 
-function BlockStatus() {
+function Milestones() {
 	var milestones = [
 		500000000, // Initial Reward
 		400000000, // Milestone 1
@@ -9,8 +9,8 @@ function BlockStatus() {
 		100000000  // Milestone 4
 	];
 
-	var distance = 3000000, // Distance between each milestone
-	    rewardOffset = 60480; // Start rewards at block (n)
+	var distance = Math.floor(constants.rewards.distance), // Distance between each milestone
+	    rewardOffset = Math.floor(constants.rewards.offset); // Start rewards at block (n)
 
 	var parseHeight = function (height) {
 		height = parseInt(height);
@@ -91,4 +91,4 @@ function BlockStatus() {
 }
 
 // Exports
-module.exports = BlockStatus;
+module.exports = Milestones;

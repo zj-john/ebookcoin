@@ -38,11 +38,11 @@ module.exports = {
         if (epochTime === undefined) {
             epochTime = this.getTime()
         }
-        return Math.floor(epochTime / constants.interval);
+        return Math.floor(epochTime / constants.slots.interval);
     },
 
     getSlotTime: function(slot) {
-        return slot * constants.interval;
+        return slot * constants.slots.interval;
     },
 
     getNextSlot: function() {

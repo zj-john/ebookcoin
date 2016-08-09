@@ -4,7 +4,7 @@ var	ip = require('ip');
 var	ByteBuffer = require("bytebuffer");
 var	constants = require("../helpers/constants.js");
 var	genesisblock = null;
-var	blockStatus = require("../helpers/blockStatus.js");
+var	milestones = require("../helpers/milestones.js");
 var	constants = require('../helpers/constants.js');
 var	Router = require('../helpers/router.js');
 var	slots = require('../helpers/slots.js');
@@ -19,7 +19,7 @@ require('array.prototype.findindex'); // Old node fix
 var modules, library, self, privated = {}, shared = {};
 
 privated.lastBlock = {};
-privated.blockStatus = new blockStatus();
+privated.milestones = new milestones();
 // @formatter:off
 privated.blocksDataFields = {
 	'b_id': String,
@@ -828,7 +828,7 @@ Blocks.prototype.processBlock = function (block, broadcast, cb) {
 				return setImmediate(done, "Invalid previous block");
 			}
 
-			var expectedReward = privated.blockStatus.calcReward(block.height);
+			var expectedReward = privated.milestones.calcReward(block.height);
 
 			if (block.height != 1 && expectedReward !== block.reward) {
 				return setImmediate(done, "Invalid block reward");
@@ -887,7 +887,7 @@ Blocks.prototype.processBlock = function (block, broadcast, cb) {
 
 					// Check payload hash, transaction, number of confirmations
 
-					var totalAmount = 0, totalFee = 0, payloadHash = crypto.createHash('sha256'), appliedTransactions = {}, acceptedRequests = {}, acceptedConfirmations = {};
+					var totalAmount = 0, totalFee = 0, payloadHash = crypto.createHash('sha256'), appliedTransactions = {}; // acceptedRequests = {}, acceptedConfirmations = {};
 
 					async.eachSeries(block.transactions, function (transaction, cb) {
 						try {
@@ -1320,7 +1320,7 @@ shared.getMilestone = function (req, cb) {
 		cb("Blockchain is loading");
 	}
 	var query = req.body, height = privated.lastBlock.height;
-	cb(null, {milestone: privated.blockStatus.calcMilestone(height)});
+	cb(null, {milestone: privated.milestones.calcMilestone(height)});
 };
 
 shared.getReward = function (req, cb) {
@@ -1328,7 +1328,7 @@ shared.getReward = function (req, cb) {
 		cb("Blockchain is loading");
 	}
 	var query = req.body, height = privated.lastBlock.height;
-	cb(null, {reward: privated.blockStatus.calcReward(height)});
+	cb(null, {reward: privated.milestones.calcReward(height)});
 };
 
 shared.getSupply = function (req, cb) {
@@ -1336,7 +1336,7 @@ shared.getSupply = function (req, cb) {
 		cb("Blockchain is loading");
 	}
 	var query = req.body, height = privated.lastBlock.height;
-	cb(null, {supply: privated.blockStatus.calcSupply(height)});
+	cb(null, {supply: privated.milestones.calcSupply(height)});
 };
 
 shared.getStatus = function (req, cb) {
@@ -1347,9 +1347,9 @@ shared.getStatus = function (req, cb) {
 	cb(null, {
 		height:    height,
 		fee:       library.logic.block.calculateFee(),
-		milestone: privated.blockStatus.calcMilestone(height),
-		reward:    privated.blockStatus.calcReward(height),
-		supply:    privated.blockStatus.calcSupply(height)
+		milestone: privated.milestones.calcMilestone(height),
+		reward:    privated.milestones.calcReward(height),
+		supply:    privated.milestones.calcSupply(height)
 	});
 };
 
