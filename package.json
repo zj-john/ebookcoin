@@ -86,21 +86,19 @@
     "should": "~4.6.0",
     "supertest": "^1.0.1"
   },
-
   "apidoc": {
     "title": "Ebookcoin Api Docs",
-    "url" : "http://test.ebookchain.org",
+    "url": "http://test.ebookchain.org",
     "sampleUrl": "http://test.ebookchain.org",
     "header": {
       "title": "About these Docs",
       "filename": "docs/header.md"
     },
     "template": {
-    	"withCompare": true,
-    	"withGenerator": true
+      "withCompare": true,
+      "withGenerator": true
     }
   },
-
   "config": {
     "blanket": {
       "pattern": [
