@@ -1,3 +1,4 @@
+// cli模块，开发命令行工具
 var program = require('commander');
 var packageJson = require('./package.json');
 var Logger = require('./logger.js');
@@ -8,6 +9,7 @@ var extend = require('extend');
 var path = require('path');
 var https = require('https');
 var fs = require('fs');
+// 该组件提供了json数据格式验证功能
 var z_schema = require('z-schema');
 var util = require('util');
 var Sequence = require('./helpers/sequence.js');
@@ -16,6 +18,7 @@ process.stdin.resume();
 
 var versionBuild = fs.readFileSync(path.join(__dirname, 'build'), 'utf8');
 
+// 命令行选项设置，<>中的值是key，可以使用program.key获取
 program
 	.version(packageJson.version)
 	.option('-c, --config <path>', 'Config file path')
@@ -62,6 +65,7 @@ if (program.log) {
 	appConfig.consoleLogLevel = program.log;
 }
 
+// 获取异常
 process.on('uncaughtException', function (err) {
 	// handle the error safely
 	logger.fatal('System error', { message: err.message, stack: err.stack });
@@ -93,6 +97,7 @@ var config = {
 
 var logger = new Logger({echo: appConfig.consoleLogLevel, errorLevel: appConfig.fileLogLevel});
 
+// domain模块捕获全局异常
 var d = require('domain').create();
 d.on('error', function (err) {
 	logger.fatal('Domain master', { message: err.message, stack: err.stack });

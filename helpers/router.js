@@ -1,5 +1,16 @@
 var extend = require('extend');
-
+// 地址映射方法
+// root: 定义了所要开放Api的逻辑函数
+// config: 定义了路由和root定义的函数的对应关系，如下
+// {
+//     "get /": "getPeers",
+//     "get /version": "version",
+//     "get /get": "getPeer"
+// }
+// map处理后等价于下式
+// router.get('/peers', function(req, res, next){
+//     root.getPeers(...);
+// })
 function map(root, config) {
 	var router = this;
 	Object.keys(config).forEach(function (params) {
@@ -28,6 +39,7 @@ var Router = function () {
 	var router = require('express').Router();
 
 	router.use(function (req, res, next) {
+		// 允许跨域
 		res.header("Access-Control-Allow-Origin", "*");
 		res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
 		next();
@@ -37,5 +49,6 @@ var Router = function () {
 
 	return router;
 }
+
 
 module.exports = Router;
